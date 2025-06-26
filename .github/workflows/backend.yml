@@ -42,14 +42,11 @@ jobs:
             cd /home/leenux/quizsushi/be
             echo "📁 서버 디렉토리 이동"
           
-            echo "📦 도커 최신 이미지 가져오기"
-            docker pull dlaudfuf33/quizsushi-be:${{ github.sha }}
-          
             echo "🛑 기존 컨테이너 정리"
             docker compose down
           
             echo "🚀 새 버전으로 컨테이너 실행"
-            docker compose up -d
+            IMAGE_TAG=${{ github.sha }} docker compose up -d
           
             echo "📝 배포 버전 기록"
             bash record_version.sh ${{ github.sha }}
