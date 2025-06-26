@@ -52,16 +52,6 @@ quizsushi-be/
 - `.github/workflows/backend.yml`에서 이미지 빌드 후 DockerHub에 푸시하고, SSH로 운영 서버에 접속해 새 컨테이너를 실행합니다.
 - 운영용 환경 변수 파일은 서버에만 존재하며 Git에는 포함하지 않습니다.
 
-## 로컬 개발 방법
-
-1. 이 저장소를 클론한 뒤 `.env.example`을 `.env`로 복사하여 환경 변수를 입력합니다.
-2. PostgreSQL과 Redis를 로컬에서 실행하거나 Docker로 준비합니다.
-3. `./gradlew bootRun`으로 서버를 실행하거나, 다음 명령으로 이미지 빌드 후 실행할 수 있습니다.
-   ```bash
-   docker build -t quizsushi-be .
-   docker run --env-file .env -p 8080:8080 quizsushi-be
-   ```
-4. 초기 데이터가 필요하면 `src/main/resources/init.sql`을 DB에 적용하세요.
 
 ## 기술 스택
 
