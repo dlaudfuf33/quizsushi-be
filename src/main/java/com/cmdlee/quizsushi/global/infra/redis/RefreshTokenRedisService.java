@@ -1,8 +1,10 @@
 package com.cmdlee.quizsushi.global.infra.redis;
 
 import com.cmdlee.quizsushi.member.domain.model.RefreshTokenData;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +12,7 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RefreshTokenRedisService {
@@ -17,6 +20,17 @@ public class RefreshTokenRedisService {
     private final RedisTemplate<String, RefreshTokenData> redisTemplate;
     private final RedisTemplate<String, String> stringRedisTemplate;
     private static final long TTL_SECONDS = 86400L;
+
+    @PostConstruct
+    public void checkRedis() {
+        try {
+            stringRedisTemplate.opsForValue().set("healthcheck", "ok", 10, TimeUnit.SECONDS);
+            log.info("Redis 연결 성공");
+        } catch (Exception e) {
+            log.error("Redis 연결 실패");
+            e.printStackTrace();
+        }
+    }
 
     public void save(String memberId, String refreshUUID, HttpServletRequest request) {
         String indexKey = getIndexKey(memberId);
