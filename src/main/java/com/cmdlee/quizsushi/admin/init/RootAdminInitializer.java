@@ -1,4 +1,4 @@
-package com.cmdlee.quizsushi.admin.common;
+package com.cmdlee.quizsushi.admin.init;
 
 import com.cmdlee.quizsushi.admin.domain.model.AdminMember;
 import com.cmdlee.quizsushi.admin.domain.model.enums.AdminRole;
@@ -9,9 +9,9 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class RootAdminInitializer implements CommandLineRunner {
 
     private final AdminMemberRepository adminMemberRepository;
@@ -23,15 +23,15 @@ public class RootAdminInitializer implements CommandLineRunner {
         String rootId = properties.getId();
         String rawPassword = properties.getPassword();
 
-        if (!adminMemberRepository.existsByRole(AdminRole.valueOf("ROOT"))) {
+        if (!adminMemberRepository.existsByRole(AdminRole.ROOT)) {
             AdminMember root = AdminMember.builder()
                     .alias("ROOT 관리자 계정")
                     .username(rootId)
                     .password(passwordEncoder.encode(rawPassword))
-                    .role(AdminRole.valueOf("ROOT"))
+                    .role(AdminRole.ROOT)
                     .build();
             adminMemberRepository.save(root);
-            log.info("최초 ROOT 관리자 계정이 생성되었습니다.");
+            log.info("First \"ROOT_ADMIN\" ACCOUNT CREATED.");
         }
     }
 }

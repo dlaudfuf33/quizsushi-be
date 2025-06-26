@@ -1,15 +1,14 @@
-package com.cmdlee.quizsushi.member.dto.response;
+package com.cmdlee.quizsushi.admin.dto.response;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
 @AllArgsConstructor
 public class StatRawResponse {
-
-    private final String type;
-    private final LocalDateTime timestamp;
-    private final Long count;
+    private final String label;
+    private final LocalDateTime time;
+    private final long count;
 }
