@@ -1,7 +1,7 @@
-package com.cmdlee.quizsushi.global.tmp.util;
+package com.cmdlee.quizsushi.global.util;
 
-import com.cmdlee.quizsushi.global.tmp.exception.ErrorCode;
-import com.cmdlee.quizsushi.global.tmp.exception.GlobalException;
+import com.cmdlee.quizsushi.global.exception.ErrorCode;
+import com.cmdlee.quizsushi.global.exception.GlobalException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.annotation.Aspect;
@@ -18,14 +18,14 @@ public class UserAgentAspect {
 
     private final HttpServletRequest request;
 
-    @Before("@annotation(com.cmdlee.quizsushi.global.tmp.util.RejectBot)")
+    @Before("@annotation(com.cmdlee.quizsushi.global.util.RejectBot) || @within(com.cmdlee.quizsushi.global.util.RejectBot)")
     public void checkUserAgent() {
         String ua = Optional.ofNullable(request.getHeader("User-Agent")).orElse("").toLowerCase();
         List<String> blocked = List.of("curl", "python", "postman", "node", "bot");
 
         for (String agent : blocked) {
             if (ua.contains(agent)) {
-                throw new GlobalException(ErrorCode.FORBIDDEN_REQUEST);
+                throw new GlobalException(ErrorCode.BOT_ACCESS_BLOCKED);
             }
         }
     }

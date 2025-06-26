@@ -1,4 +1,4 @@
-package com.cmdlee.quizsushi.member.security;
+package com.cmdlee.quizsushi.global.config.security.member;
 
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;

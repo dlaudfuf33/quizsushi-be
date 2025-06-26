@@ -1,4 +1,4 @@
-package com.cmdlee.quizsushi.admin.security;
+package com.cmdlee.quizsushi.global.config.security.admin;
 
 import com.cmdlee.quizsushi.admin.domain.model.AdminMember;
 import com.cmdlee.quizsushi.admin.domain.model.enums.AdminRole;
@@ -16,28 +16,32 @@ import java.util.List;
 public class CustomAdminDetails implements UserDetails, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-    private final AdminMember admin;
+    private final Long id;
+    private final String username;
+    private final String password;
+    private final AdminRole role;
 
     public CustomAdminDetails(AdminMember admin) {
-        this.admin = admin;
+        this.id = admin.getId();
+        this.username = admin.getUsername();
+        this.password = admin.getPassword();
+        this.role = admin.getRole();
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        AdminRole role = admin.getRole();
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role.name());
-
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + this.role.name());
         return List.of(authority);
     }
 
     @Override
     public String getPassword() {
-        return admin.getPassword();
+        return this.password;
     }
 
     @Override
     public String getUsername() {
-        return admin.getUsername();
+        return this.username;
     }
 
     @Override

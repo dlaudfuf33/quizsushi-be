@@ -1,4 +1,4 @@
-package com.cmdlee.quizsushi.admin.security;
+package com.cmdlee.quizsushi.global.config.security.admin;
 
 import com.cmdlee.quizsushi.admin.domain.model.AdminMember;
 import com.cmdlee.quizsushi.admin.repository.AdminMemberRepository;

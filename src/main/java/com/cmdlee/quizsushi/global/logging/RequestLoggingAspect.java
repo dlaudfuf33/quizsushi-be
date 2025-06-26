@@ -1,4 +1,4 @@
-package com.cmdlee.quizsushi.global.tmp.logging;
+package com.cmdlee.quizsushi.global.logging;
 
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -18,12 +18,12 @@ public class RequestLoggingAspect {
         String fullMethod = className + "." + methodName;
         long start = System.currentTimeMillis();
 
-        log.info("▶️ Entering  ➜ {}", fullMethod);
+        log.debug("▶️ Start ➜ {}", fullMethod);
 
         try {
             Object result = joinPoint.proceed();
             long duration = System.currentTimeMillis() - start;
-            log.info("Completed in -> ⏱️{} ms", duration);
+            log.debug(fullMethod + " Completed in -> ⏱️{} ms", duration);
             return result;
         } catch (Exception e) {
             log.error("Error -> {}  💥 {}", fullMethod, e.getMessage(), e);

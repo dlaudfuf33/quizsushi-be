@@ -1,4 +1,4 @@
-package com.cmdlee.quizsushi.global.tmp.security;
+package com.cmdlee.quizsushi.global.auth.crypt;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;

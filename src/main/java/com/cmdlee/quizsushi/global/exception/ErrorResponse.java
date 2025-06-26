@@ -1,4 +1,4 @@
-package com.cmdlee.quizsushi.global.tmp.exception;
+package com.cmdlee.quizsushi.global.exception;
 
 import lombok.Builder;
 import lombok.Getter;

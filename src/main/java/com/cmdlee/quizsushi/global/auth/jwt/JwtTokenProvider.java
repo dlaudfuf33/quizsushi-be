@@ -1,8 +1,10 @@
-package com.cmdlee.quizsushi.global.tmp.security;
+package com.cmdlee.quizsushi.global.auth.jwt;
 
-import com.cmdlee.quizsushi.member.domain.model.QuizsushiMember;
-import com.cmdlee.quizsushi.member.domain.model.enums.PlanTier;
-import io.jsonwebtoken.*;
+import com.cmdlee.quizsushi.global.util.CookieUtil;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,38 +32,27 @@ public class JwtTokenProvider {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
-    // 토큰 생성
-    public String createToken(QuizsushiMember member) {
+    // 엑세스 토큰 생성
+    public String createToken(String id) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + expiration);
 
         return Jwts.builder()
-                .setSubject(member.getId().toString())
-                .claim("nickname", member.getNickname())
-                .claim("planTier", member.getPlanTier())
+                .setSubject(String.valueOf(id))
                 .setIssuedAt(now)
                 .setExpiration(expiry)
                 .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
     }
 
+
     public Long getUserId(String token) {
         return Long.parseLong(Jwts.parserBuilder().setSigningKey(key).build()
                 .parseClaimsJws(token).getBody().getSubject());
     }
 
-    public String getNickname(String token) {
-        return Jwts.parserBuilder().setSigningKey(key).build()
-                .parseClaimsJws(token).getBody().get("nickname", String.class);
-    }
 
-    public PlanTier getPlanTier(String token) {
-        String tier = Jwts.parserBuilder().setSigningKey(key).build()
-                .parseClaimsJws(token).getBody().get("planTier", String.class);
-        return PlanTier.valueOf(tier);
-    }
-
-    // ✅ 토큰 유효성 검사
+    // 엑세스 토큰 유효성 검사
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
@@ -74,12 +65,14 @@ public class JwtTokenProvider {
         return false;
     }
 
-    // ✅ 요청 헤더에서 JWT 추출
-    public String resolveToken(HttpServletRequest request) {
-        String bearer = request.getHeader("Authorization");
-        if (bearer != null && bearer.startsWith("Bearer ")) {
-            return bearer.substring(7);
-        }
-        return null;
+    // 요청 헤더에서 엑세스 JWT 추출
+    public String resolveAccessToken(HttpServletRequest request) {
+        return CookieUtil.extract(request, "qtka").orElse(null);
     }
+
+    public String resolveRefreshToken(HttpServletRequest request) {
+        return CookieUtil.extract(request, "qtkr").orElse(null);
+    }
+
+
 }

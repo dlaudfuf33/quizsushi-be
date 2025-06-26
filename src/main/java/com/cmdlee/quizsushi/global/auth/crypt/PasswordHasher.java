@@ -1,4 +1,4 @@
-package com.cmdlee.quizsushi.global.tmp.security;
+package com.cmdlee.quizsushi.global.auth.crypt;
 
 public interface PasswordHasher {
     String hash(String raw);

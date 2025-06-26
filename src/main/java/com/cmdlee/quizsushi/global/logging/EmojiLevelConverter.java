@@ -1,5 +1,5 @@
 
-package com.cmdlee.quizsushi.global.tmp.logging;
+package com.cmdlee.quizsushi.global.logging;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.pattern.ClassicConverter;

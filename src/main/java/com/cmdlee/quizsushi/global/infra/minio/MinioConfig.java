@@ -1,4 +1,4 @@
-package com.cmdlee.quizsushi.global.config.minio;
+package com.cmdlee.quizsushi.global.infra.minio;
 
 import io.minio.MinioClient;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
