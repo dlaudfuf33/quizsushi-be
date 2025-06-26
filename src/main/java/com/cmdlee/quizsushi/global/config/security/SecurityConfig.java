@@ -3,7 +3,6 @@ package com.cmdlee.quizsushi.global.config.security;
 import com.cmdlee.quizsushi.admin.domain.model.enums.AdminRole;
 import com.cmdlee.quizsushi.global.auth.jwt.JwtAuthenticationFilter;
 import com.cmdlee.quizsushi.global.auth.jwt.JwtTokenProvider;
-import com.cmdlee.quizsushi.global.config.security.admin.CustomAdminDetails;
 import com.cmdlee.quizsushi.member.service.RefreshTokenService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,9 +17,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -137,37 +134,6 @@ public class SecurityConfig {
                         .requestMatchers("/cmdlee-qs/login").permitAll()
                         .requestMatchers("/cmdlee-qs/admin/**").access(AuthorityAuthorizationManager.hasAnyRole("ROOT", "ADMIN", "MANAGER"))
                         .anyRequest().authenticated()
-                )
-                .exceptionHandling(ex -> ex
-                        .accessDeniedHandler((request, response, accessDeniedException) -> {
-                            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-                            System.out.println("\n==================[REQUEST LOG]==================");
-                            System.out.println("🚫 인가 거부 (403)");
-                            System.out.println("▶ 요청 URL      : " + request.getRequestURI());
-                            System.out.println("▶ HTTP Method  : " + request.getMethod());
-                            System.out.println("▶ 요청 IP       : " + request.getRemoteAddr());
-                            System.out.println("▶ Principal     : " + auth.getPrincipal());
-                            if (auth.getPrincipal() instanceof CustomAdminDetails adminDetails) {
-                                System.out.println("▶ Admin ID      : " + adminDetails.getId());
-                                System.out.println("▶ Username      : " + adminDetails.getUsername());
-                                System.out.println("▶ Role Enum     : " + adminDetails.getRole());
-                            }
-                            System.out.println("▶ Authorities   : " + auth.getAuthorities());
-                            for (GrantedAuthority authority : auth.getAuthorities()) {
-                                System.out.println("▶ → " + authority.getAuthority());
-                            }
-                            System.out.println("▶ Message       : " + accessDeniedException.getMessage());
-                            System.out.println("=================================================\n");
-                        })
-                        .authenticationEntryPoint((request, response, authException) -> {
-                            System.out.println("\n==================[REQUEST LOG]==================");
-                            System.out.println("❗ 인증 실패 (401)");
-                            System.out.println("URL: " + request.getRequestURI());
-                            System.out.println("IP: " + request.getRemoteAddr());
-                            System.out.println("Message: " + authException.getMessage());
-                            System.out.println("=================================================\n");
-                        })
                 );
         return http.build();
     }
