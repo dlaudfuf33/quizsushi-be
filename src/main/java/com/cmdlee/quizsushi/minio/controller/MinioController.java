@@ -1,6 +1,6 @@
 package com.cmdlee.quizsushi.minio.controller;
 
-import com.cmdlee.quizsushi.minio.service.UploadService;
+import com.cmdlee.quizsushi.minio.service.MinioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,14 +11,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/uploads")
-public class UploadController {
+@RequestMapping("/api")
+public class MinioController {
 
-    private final UploadService uploadService;
+    private final MinioService minioService;
 
-    @PostMapping
+    @PostMapping("/uploads/temp-media")
     public ResponseEntity<String> upload(@RequestParam("file") MultipartFile file) throws Exception {
-        String url = uploadService.uploadTempFile(file);
+        String url = minioService.uploadTempFile(file);
         return ResponseEntity.ok(url);
     }
 }
