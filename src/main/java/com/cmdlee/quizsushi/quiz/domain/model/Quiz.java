@@ -1,120 +1,139 @@
-package com.cmdlee.quizsushi.domain.model;
+package com.cmdlee.quizsushi.quiz.domain.model;
 
-import com.cmdlee.quizsushi.domain.dto.request.UpdateQuestionRequest;
-import com.cmdlee.quizsushi.domain.dto.request.UpdateQuizRequest;
-import com.cmdlee.quizsushi.domain.model.Enum.QuestionType;
+import com.cmdlee.quizsushi.global.exception.ErrorCode;
+import com.cmdlee.quizsushi.global.exception.GlobalException;
+import com.cmdlee.quizsushi.member.domain.model.QuizsushiMember;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
+@DynamicUpdate
 public class Quiz extends TimeBaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "quiz_seq"
+    )
+    @SequenceGenerator(
+            name = "quiz_seq",
+            sequenceName = "quiz_seq",
+            allocationSize = 1
+    )
     private Long id;
 
-    @Column(nullable = false)
-    private String authorName;
-
-    @Column(nullable = false)
-    private String password;
-
-    @Column(nullable = false)
-    private boolean useSubject;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "member_id", nullable = false)
+    private QuizsushiMember author;
 
     @Column(nullable = false, length = 200)
     private String title;
-
-    @Column(columnDefinition = "TEXT")
-    private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @Column(nullable = false)
+    private boolean useSubject;
+
+    @Column(nullable = false)
+    private String mediaKey;
+
+    @Column(nullable = false)
+    private int questionCount;
+
+    @Column(nullable = false)
+    private double rating = 0.0;
+
+    @Column(nullable = false)
+    private Long ratingCount = 0L;
+
+    @Column(nullable = false)
+    private Long viewCount = 0L;
+
+    @Column(nullable = false)
+    private Long solveCount = 0L;
+
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<QuizRating> quizRatings = new ArrayList<>();
+    private Set<QuizRating> quizRatings = new HashSet<>();
 
-    @Setter
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Question> questions = new HashSet<>();
-
-    public double getRating() {
-        if (quizRatings == null || quizRatings.isEmpty()) return 0.0;
-        return quizRatings.stream()
-                .mapToInt(QuizRating::getRating)
-                .average()
-                .orElse(0.0);
-    }
-
-    public long getReviewCount() {
-        if (quizRatings == null) return 0;
-        return quizRatings.size();
-    }
+    @BatchSize(size = 50)
+    private List<Question> questions = new ArrayList<>();
 
     @Builder
-    public Quiz(String authorName, String password, String title, Category category, String description, boolean useSubject) {
-        this.authorName = authorName;
-        this.password = password;
+    public Quiz(QuizsushiMember author, String title, Category category, String description, boolean useSubject, String mediaKey, int questionCount) {
+        this.author = author;
         this.title = title;
         this.category = category;
+        this.questionCount = questionCount;
+        this.mediaKey = mediaKey;
         this.description = description;
         this.useSubject = useSubject;
     }
 
-    public void addQuestion(Question question) {
-        this.questions.add(question);
-        question.setQuiz(this);
+    public void addQuestions(List<Question> questions) {
+        validateDuplicate(questions);
+        for (Question question : questions) {
+            question.setQuiz(this); // 연관관계 주인 설정
+        }
+        this.questions.addAll(questions);
     }
 
-    public void updateQuiz(UpdateQuizRequest dto) {
-        this.description = dto.getDescription();
-        this.useSubject = dto.isUseSubject();
-
-        Map<Long, Question> existingMap = this.questions.stream()
-                .filter(q -> q.getId() != null)
-                .collect(Collectors.toMap(Question::getId, q -> q));
-
-        Set<Question> updated = new HashSet<>();
-
-        for (UpdateQuestionRequest qDto : dto.getQuestions()) {
-            if (qDto.getId() != null && existingMap.containsKey(qDto.getId())) {
-                // ✅ 수정
-                Question existing = existingMap.get(qDto.getId());
-                existing.updateFrom(qDto, this.useSubject);
-                updated.add(existing);
-            } else {
-                // ✅ 추가
-                Question newQ = Question.builder()
-                        .no(qDto.getNo())
-                        .type(QuestionType.valueOf(qDto.getType()))
-                        .subject(this.useSubject ? qDto.getSubject() : "")
-                        .questionText(qDto.getQuestion())
-                        .options(qDto.getOptions())
-                        .correctIdx(qDto.getCorrectAnswer())
-                        .correctAnswerText(qDto.getCorrectAnswerText())
-                        .explanation(qDto.getExplanation())
-                        .quiz(this)
-                        .build();
-                updated.add(newQ);
+    private void validateDuplicate(List<Question> newQuestions) {
+        for (Question newQuestion : newQuestions) {
+            boolean exists = this.questions.stream().anyMatch(q -> q.getNo() == newQuestion.getNo());
+            if (exists) {
+                throw new GlobalException(ErrorCode.DUPLICATE_QUESTION_NO);
             }
         }
+    }
 
-        // ✅ 삭제: 기존 문제들 중, dto에 없는 것 제거
-        this.questions.removeIf(q -> q.getId() != null &&
-                updated.stream().noneMatch(u -> Objects.equals(u.getId(), q.getId())));
+    public void updateMetadata(String description, boolean useSubject, int questionCount) {
+        this.description = description;
+        this.useSubject = useSubject;
+        this.questionCount = questionCount;
+    }
 
-        // ✅ 새로 추가된 문제들 add
-        for (Question q : updated) {
-            this.addQuestion(q);
-        }
+    public void clearQuestions() {
+        this.questions.clear();
+    }
+
+    public void increaseViewCount() {
+        this.viewCount++;
+    }
+
+    public void increaseSolveCount() {
+        this.solveCount++;
+    }
+
+    public void addRate(QuizRating quizRating) {
+        this.quizRatings.add(quizRating);
+        this.rating = ((this.rating * this.ratingCount) + quizRating.getRating()) / (this.ratingCount + 1);
+        this.ratingCount++;
+    }
+
+    public void updateRate(int oldRating, int newRating) {
+        if (this.ratingCount == 0) return;
+        int total = (int) (this.rating * this.ratingCount);
+        total = total - oldRating + newRating;
+        this.rating = (double) total / this.ratingCount;
     }
 
 }

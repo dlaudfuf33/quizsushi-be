@@ -1,4 +1,4 @@
-package com.cmdlee.quizsushi.domain.dto.request;
+package com.cmdlee.quizsushi.quiz.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

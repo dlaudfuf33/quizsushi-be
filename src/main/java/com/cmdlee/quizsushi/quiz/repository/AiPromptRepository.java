@@ -1,4 +1,4 @@
-package com.cmdlee.quizsushi.quiz.domain.repository;
+package com.cmdlee.quizsushi.quiz.repository;
 
 import com.cmdlee.quizsushi.quiz.domain.model.AiPrompt;
 import org.springframework.data.jpa.repository.JpaRepository;

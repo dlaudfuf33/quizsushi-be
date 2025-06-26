@@ -1,4 +1,4 @@
-package com.cmdlee.quizsushi.domain.model;
+package com.cmdlee.quizsushi.quiz.domain.model;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -16,7 +16,15 @@ import java.util.List;
 public class Category extends TimeBaseEntity{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "category_seq"
+    )
+    @SequenceGenerator(
+            name = "category_seq",
+            sequenceName = "category_seq",
+            allocationSize = 1
+    )
     private Long id;
 
     @Column(nullable = false, length = 100)
@@ -24,9 +32,6 @@ public class Category extends TimeBaseEntity{
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
-
-    @Column(nullable = false)
-    private Long count = 0L;
 
     @Column(nullable = false, length = 10)
     private String icon;
@@ -40,14 +45,6 @@ public class Category extends TimeBaseEntity{
         this.title = title;
         this.description = description;
         this.icon = icon;
-        this.count = 0L;
     }
 
-    public void increaseCount() {
-        this.count++;
-    }
-
-    public void decreaseCount() {
-        this.count = Math.max(0, this.count - 1);
-    }
 }

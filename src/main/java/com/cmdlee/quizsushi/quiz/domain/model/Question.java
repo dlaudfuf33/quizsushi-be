@@ -1,24 +1,30 @@
-package com.cmdlee.quizsushi.domain.model;
+package com.cmdlee.quizsushi.quiz.domain.model;
 
-import com.cmdlee.quizsushi.domain.dto.request.UpdateQuestionRequest;
-import com.cmdlee.quizsushi.domain.model.Enum.QuestionType;
-import com.cmdlee.quizsushi.domain.model.converter.StringListToJsonConverter;
+import com.cmdlee.quizsushi.quiz.domain.model.enums.QuestionType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class Question extends TimeBaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "question_seq"
+    )
+    @SequenceGenerator(
+            name = "question_seq",
+            sequenceName = "question_seq",
+            allocationSize = 50
+    )
     private Long id;
 
     private int no;
@@ -33,13 +39,13 @@ public class Question extends TimeBaseEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String questionText;
 
-    @Convert(converter = StringListToJsonConverter.class)
-    @Column(columnDefinition = "TEXT")
-    private List<String> options;
+
+    @Column
+    private String options;
 
     // 객관식 정답
-    @Column(name = "correct_answer")
-    private Integer correctIdx;
+    @Column(name = "correct_answers")
+    private String correctIndexes;
 
     // 주관식 정답
     private String correctAnswerText;
@@ -53,26 +59,21 @@ public class Question extends TimeBaseEntity {
 
     @Builder
     public Question(int no, String subject, QuestionType type, String questionText, List<String> options,
-                    Integer correctIdx, String correctAnswerText, String explanation, Quiz quiz) {
-        this.no = no;
-        this.subject = subject;
-        this.type = type;
-        this.questionText = questionText;
-        this.options = options != null ? options : new ArrayList<>();
-        this.correctIdx = correctIdx;
-        this.correctAnswerText = correctAnswerText;
-        this.explanation = explanation;
-        this.quiz = quiz;
+                    List<Integer> correctIndexes, String correctAnswerText, String explanation, Quiz quiz) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            this.no = no;
+            this.subject = subject;
+            this.type = type;
+            this.questionText = questionText;
+            this.options = options != null ? mapper.writeValueAsString(options) : "[]";
+            this.correctIndexes = correctIndexes != null ? mapper.writeValueAsString(correctIndexes) : "[]";
+            this.correctAnswerText = correctAnswerText;
+            this.explanation = explanation;
+            this.quiz = quiz;
+        } catch (Exception e) {
+            throw new RuntimeException("JSON 직렬화 실패", e);
+        }
     }
 
-    public void updateFrom(UpdateQuestionRequest dto,boolean useSubject) {
-        this.no = dto.getNo();
-        this.subject = useSubject ? dto.getSubject() : "";
-        this.type = QuestionType.valueOf(dto.getType());
-        this.questionText = dto.getQuestion();
-        this.options = dto.getOptions();
-        this.correctIdx = dto.getCorrectAnswer();
-        this.correctAnswerText = dto.getCorrectAnswerText();
-        this.explanation = dto.getExplanation();
-    }
 }

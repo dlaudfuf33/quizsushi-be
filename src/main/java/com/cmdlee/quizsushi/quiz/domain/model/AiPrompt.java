@@ -1,4 +1,4 @@
-package com.cmdlee.quizsushi.domain.model;
+package com.cmdlee.quizsushi.quiz.domain.model;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -12,7 +12,15 @@ import lombok.NoArgsConstructor;
 public class AiPrompt extends TimeBaseEntity{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "ai_prompt_seq"
+    )
+    @SequenceGenerator(
+            name = "ai_prompt_seq",
+            sequenceName = "ai_prompt_seq",
+            allocationSize = 1
+    )
     private Long id;
 
     @Column(nullable = false, unique = true)

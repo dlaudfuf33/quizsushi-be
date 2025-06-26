@@ -1,21 +1,24 @@
-package com.cmdlee.quizsushi.controller;
+package com.cmdlee.quizsushi.quiz.controller;
 
-import com.cmdlee.quizsushi.domain.dto.*;
-import com.cmdlee.quizsushi.domain.dto.request.CreateQuizRequest;
-import com.cmdlee.quizsushi.domain.dto.request.DeleteQuizRequest;
-import com.cmdlee.quizsushi.domain.dto.request.GenerateQuizRequest;
-import com.cmdlee.quizsushi.domain.dto.request.UpdateQuizRequest;
-import com.cmdlee.quizsushi.domain.dto.response.*;
-import com.cmdlee.quizsushi.service.AiService;
-import com.cmdlee.quizsushi.service.CategoryService;
-import com.cmdlee.quizsushi.service.QuizService;
+import com.cmdlee.quizsushi.global.dto.CommonApiResponse;
+import com.cmdlee.quizsushi.global.exception.ErrorCode;
+import com.cmdlee.quizsushi.global.exception.GlobalException;
+import com.cmdlee.quizsushi.global.util.RejectBot;
+import com.cmdlee.quizsushi.global.config.security.member.CustomMemberDetails;
+import com.cmdlee.quizsushi.quiz.dto.request.*;
+import com.cmdlee.quizsushi.quiz.dto.response.*;
+import com.cmdlee.quizsushi.quiz.service.AiService;
+import com.cmdlee.quizsushi.quiz.service.CategoryService;
+import com.cmdlee.quizsushi.quiz.service.QuizService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,60 +30,116 @@ public class QuizController {
     private final AiService aiService;
 
     @GetMapping("/categories/introductions")
-    public ResponseEntity<CommonApiResponse<Map<String, Object>>> getIntroductionCategories() {
+    public ResponseEntity<CommonApiResponse<List<IntroductionCategoryResponse>>> getIntroductionCategories() {
         List<IntroductionCategoryResponse> introductions = categoryService.findIntroductionCategories();
-        Map<String, Object> responseData = Map.of("introductions", introductions);
-        return ResponseEntity.ok(CommonApiResponse.ok(responseData, "카테고리 소개 목록 조회 성공"));
+        return ResponseEntity.ok(CommonApiResponse.ok(introductions, "카테고리 소개 목록 조회 성공"));
     }
 
     @GetMapping("/categories")
-    public ResponseEntity<CommonApiResponse<Map<String, Object>>> getAllCategories() {
+    public ResponseEntity<CommonApiResponse<List<CategoryResponse>>> getAllCategories() {
         List<CategoryResponse> categories = categoryService.findAll();
-        Map<String, Object> responseData = Map.of("categories", categories);
-        return ResponseEntity.ok(CommonApiResponse.ok(responseData, "카테고리 목록 조회 성공"));
+        return ResponseEntity.ok(CommonApiResponse.ok(categories, "카테고리 목록 조회 성공"));
     }
 
     @GetMapping
-    public ResponseEntity<CommonApiResponse<Map<String, Object>>> findAllQuizSummary() {
-        List<QuizSummaryResponse> quizzes = quizService.findAllQuizSummary();
-        Map<String, Object> responseData = Map.of("quizzes", quizzes);
-        return ResponseEntity.ok(CommonApiResponse.ok(responseData, "카테고리 목록 조회 성공"));
+    public ResponseEntity<CommonApiResponse<QuizPageResponse>> getQuizPage(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(defaultValue = "newest") String sort,
+            @RequestParam(required = false) String searchType,
+            @RequestParam(required = false) String searchQuery
+    ) {
+        QuizPageResponse responseData = quizService.getQuizPage(page, size, sort, searchType, searchQuery, categoryId);
+        return ResponseEntity.ok(CommonApiResponse.ok(responseData, "퀴즈 목록 조회 성공"));
     }
 
+    @RejectBot
     @PostMapping
-    public ResponseEntity<CommonApiResponse<Map<String, Object>>> createQuiz(
-            @RequestBody CreateQuizRequest request
+    public ResponseEntity<CommonApiResponse<CreatedQuizResponse>> createQuiz(
+            @Valid @RequestBody CreateQuizRequest request,
+            @AuthenticationPrincipal CustomMemberDetails memberDetails
     ) {
-        Long id = quizService.createQuiz(request);
-        return ResponseEntity.ok(CommonApiResponse.ok(Map.of("quizId", id), "퀴즈 생성 성공"));
+        CreatedQuizResponse createQuizResponse = quizService.createQuiz(request, memberDetails.getId());
+        return ResponseEntity.ok(CommonApiResponse.ok(createQuizResponse, "퀴즈 생성 성공"));
     }
 
+
+    @RejectBot
     @GetMapping("/{id}")
-    public ResponseEntity<CommonApiResponse<Map<String, Object>>> getQuizById(@PathVariable Long id) {
+    public ResponseEntity<CommonApiResponse<QuizDetailResponse>> getQuizById(
+            @PathVariable Long id) {
         QuizDetailResponse quiz = quizService.getQuizById(id);
-        return ResponseEntity.ok(CommonApiResponse.ok(Map.of("quiz", quiz), "퀴즈 조회 성공"));
+        return ResponseEntity.ok(CommonApiResponse.ok(quiz, "퀴즈 조회 성공"));
     }
 
+    @RejectBot
     @PatchMapping
-    public ResponseEntity<CommonApiResponse<Map<String, Object>>> updateQuizById(
-            @RequestBody UpdateQuizRequest request
+    public ResponseEntity<CommonApiResponse<UpdatedQuizResponse>> updateQuizById(
+            @Valid @RequestBody UpdateQuizRequest request,
+            @AuthenticationPrincipal CustomMemberDetails memberDetails
     ) {
-        long quizId = quizService.updateQuizById(request);
-        return ResponseEntity.ok(CommonApiResponse.ok(Map.of("quizId", quizId), "수정 성공"));
+        if (memberDetails == null) {
+            throw new GlobalException(ErrorCode.UNAUTHORIZED);
+        }
+        UpdatedQuizResponse updateQuiz = quizService.updateQuiz(request, memberDetails.getId());
+        return ResponseEntity.ok(CommonApiResponse.ok(updateQuiz, "수정 성공"));
     }
 
+    @RejectBot
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteQuiz(
+    public ResponseEntity<CommonApiResponse<Void>> deleteQuiz(
             @PathVariable("id") Long quizId,
-            @RequestBody DeleteQuizRequest request) {
-        quizService.deleteQuiz(quizId, request);
-        return ResponseEntity.noContent().build();
+            @AuthenticationPrincipal CustomMemberDetails memberDetails) {
+        if (memberDetails == null) {
+            throw new GlobalException(ErrorCode.UNAUTHORIZED);
+        }
+        quizService.deleteQuiz(quizId, memberDetails.getId());
+        return ResponseEntity.ok(CommonApiResponse.ok(null, "삭제 성공"));
     }
 
+    @RejectBot
     @PostMapping("/generate")
-    public List<GenerateQuizResponse> generateQuizzes(@RequestBody GenerateQuizRequest request) {
-        return aiService.generateQuizByAI(request);
+    public ResponseEntity<CommonApiResponse<List<GenerateQuizResponse>>> generateQuizzes(
+            @RequestBody GenerateQuizRequest request,
+            @AuthenticationPrincipal CustomMemberDetails memberDetails) {
+        if (memberDetails == null) {
+            throw new GlobalException(ErrorCode.UNAUTHORIZED);
+        }
+        List<GenerateQuizResponse> generateQuizByAI = aiService.generateQuizByAI(request);
+        return ResponseEntity.ok(CommonApiResponse.ok(generateQuizByAI, "생성 성공"));
     }
 
+    @RejectBot
+    @PutMapping("/{id}/rate")
+    public ResponseEntity<CommonApiResponse<Void>> rateQuiz(
+            @PathVariable("id") Long quizId,
+            @RequestBody @Valid QuizRatingRequest request,
+            @AuthenticationPrincipal CustomMemberDetails memberDetails) {
+        if (memberDetails == null) {
+            throw new GlobalException(ErrorCode.UNAUTHORIZED);
+        }
+        quizService.rateQuiz(quizId, memberDetails.getId(), request);
+        return ResponseEntity.ok(CommonApiResponse.ok(null, "퀴즈 평점 등록 성공"));
+    }
+
+    @RejectBot
+    @PostMapping("/{id}/results")
+    public ResponseEntity<CommonApiResponse<Void>> submitQuizResult(
+            @PathVariable("id") Long quizId,
+            @RequestBody QuizResultRequest quizResultRequest,
+            @AuthenticationPrincipal CustomMemberDetails memberDetails,
+            HttpServletRequest request
+    ) {
+        if (memberDetails != null) {
+            quizService.saveMemberQuizResult(quizId, memberDetails.getId(), quizResultRequest);
+        } else {
+            String ip = request.getRemoteAddr();
+            String ua = request.getHeader("User-Agent");
+            quizService.saveGuestQuizResult(quizId, quizResultRequest, ip, ua);
+        }
+
+        return ResponseEntity.ok(CommonApiResponse.ok(null, "퀴즈 풀이 기록 완료"));
+    }
 
 }

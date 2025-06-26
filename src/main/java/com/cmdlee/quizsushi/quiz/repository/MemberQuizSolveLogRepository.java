@@ -1,6 +1,6 @@
 package com.cmdlee.quizsushi.quiz.repository;
 
-import com.cmdlee.quizsushi.admin.dto.response.StatRawProjection;
+import com.cmdlee.quizsushi.admin.repository.projection.StatRawProjection;
 import com.cmdlee.quizsushi.member.domain.model.QuizsushiMember;
 import com.cmdlee.quizsushi.quiz.domain.model.MemberQuizSolveLog;
 import org.springframework.data.domain.Page;
@@ -18,20 +18,16 @@ public interface MemberQuizSolveLogRepository extends JpaRepository<MemberQuizSo
     Page<MemberQuizSolveLog> findByMember(QuizsushiMember member, Pageable pageable);
 
     @Query(value = """
-            SELECT '풀이' AS label,
-                   DATE_TRUNC(:type, s.submitted_at) AS time,
+            SELECT '회원_퀴즈풀이' AS label,
+                   DATE_TRUNC(:type, ms.submitted_at) AS time,
                    COUNT(*) AS count
-            FROM member_quiz_solve_log s
+            FROM member_quiz_solve_log ms
+            WHERE ms.submitted_at >= :start AND ms.submitted_at < :end
             GROUP BY time
             ORDER BY time DESC
-            LIMIT :limit
             """, nativeQuery = true)
-    List<StatRawProjection> findSolvedStats(@Param("type") String type, @Param("limit") int limit);
+    List<StatRawProjection> findSolvedStats(@Param("type") String type,
+                                            @Param("start") LocalDateTime start,
+                                            @Param("end") LocalDateTime end);
 
-    @Query("""
-                SELECT COUNT(s)
-                FROM MemberQuizSolveLog s
-                WHERE s.submittedAt >= :start AND s.submittedAt < :end
-            """)
-    long countByDate(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 }

@@ -1,14 +1,20 @@
-package com.cmdlee.quizsushi.domain.dto.request;
+package com.cmdlee.quizsushi.quiz.dto.request;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import java.util.Set;
+import java.util.List;
 
 @Data
 public class UpdateQuizRequest {
+    @NotNull
     private Long id;
+
     private String description;
-    private String password;
+
     private boolean useSubject;
-    private Set<UpdateQuestionRequest> questions;
+
+    @NotEmpty(message = "문제 리스트는 비어 있을 수 없습니다.")
+    private List<UpdateQuestionRequest> questions;
 }

@@ -1,10 +1,10 @@
-package com.cmdlee.quizsushi.service;
+package com.cmdlee.quizsushi.quiz.service;
 
-import com.cmdlee.quizsushi.domain.dto.request.GenerateQuizRequest;
-import com.cmdlee.quizsushi.domain.dto.response.GenerateQuizResponse;
-import com.cmdlee.quizsushi.domain.repository.AiPromptRepository;
-import com.cmdlee.quizsushi.exception.ErrorCode;
-import com.cmdlee.quizsushi.exception.GlobalException;
+import com.cmdlee.quizsushi.quiz.dto.request.GenerateQuizRequest;
+import com.cmdlee.quizsushi.quiz.dto.response.GenerateQuizResponse;
+import com.cmdlee.quizsushi.quiz.repository.AiPromptRepository;
+import com.cmdlee.quizsushi.global.exception.ErrorCode;
+import com.cmdlee.quizsushi.global.exception.GlobalException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -48,7 +48,7 @@ public class AiService {
             if (aiRaw == null || aiRaw.isBlank()) {
                 throw new GlobalException(ErrorCode.AI_EMPTY_RESPONSE);
             }
-            log.info("[AI RESPONSE] Received response: bytes={}", aiRaw.length());
+            log.info("[AI RESPONSE] Received response: bytes={} raw={}", aiRaw.length(), aiRaw);
         } catch (Exception e) {
             log.error("[AI REQUEST ERROR] WebClient call failed", e);
             throw new GlobalException(ErrorCode.AI_COMMUNICATION_FAILED, e);

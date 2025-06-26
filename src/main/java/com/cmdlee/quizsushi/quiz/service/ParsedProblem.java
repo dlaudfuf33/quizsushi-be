@@ -1,4 +1,4 @@
-package com.cmdlee.quizsushi.service;
+package com.cmdlee.quizsushi.quiz.service;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Builder
 @Getter
@@ -51,9 +50,9 @@ public class ParsedProblem {
 
     private static List<String> extractOptions(String block) {
         String raw = extract(block, "\\{options}:\\[(.*?)\\]¶");
-        if (raw == null) return null;
+        if (raw == null) return List.of();
         return Arrays.stream(raw.split(","))
-                .map(s -> s.replaceAll("^\"|\"$", "").trim())
+                .map(s -> s.replaceAll("(^\")|(\"$)", "").trim())
                 .toList();
     }
 }

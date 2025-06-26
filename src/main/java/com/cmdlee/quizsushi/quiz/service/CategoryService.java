@@ -1,8 +1,8 @@
-package com.cmdlee.quizsushi.service;
+package com.cmdlee.quizsushi.quiz.service;
 
-import com.cmdlee.quizsushi.domain.dto.response.CategoryResponse;
-import com.cmdlee.quizsushi.domain.dto.response.IntroductionCategoryResponse;
-import com.cmdlee.quizsushi.domain.repository.CategoryRepository;
+import com.cmdlee.quizsushi.quiz.dto.response.CategoryResponse;
+import com.cmdlee.quizsushi.quiz.dto.response.IntroductionCategoryResponse;
+import com.cmdlee.quizsushi.quiz.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,8 +20,6 @@ public class CategoryService {
     }
 
     public List<IntroductionCategoryResponse> findIntroductionCategories() {
-        return categoryRepository.findAll().stream()
-                .map(IntroductionCategoryResponse::from)
-                .toList();
+        return categoryRepository.findAllForIntroduction();
     }
 }

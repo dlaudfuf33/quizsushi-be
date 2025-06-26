@@ -1,6 +1,5 @@
 package com.cmdlee.quizsushi.quiz.domain.model;
 
-import com.cmdlee.quizsushi.member.domain.model.QuizsushiMember;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,39 +10,38 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor
-public class MemberQuizSolveLog {
+public class GuestQuizSolveLog {
 
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "quiz_solve_log_seq"
+            generator = "guest_quiz_solve_log_seq"
     )
     @SequenceGenerator(
-            name = "quiz_solve_log_seq",
-            sequenceName = "quiz_solve_log_seq",
+            name = "guest_quiz_solve_log_seq",
+            sequenceName = "guest_quiz_solve_log_seq",
             allocationSize = 1
     )
     private Long id;
 
-    // 퀴즈를 푼 사용자
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private QuizsushiMember member;
-
-    // 푼 퀴즈
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "quiz_id")
     private Quiz quiz;
 
-    // 획득한 점수
+    private String guestIp;
+
+    private String guestUa;
+
     private Integer score;
 
     private final LocalDateTime submittedAt = LocalDateTime.now();
 
+
     @Builder
-    public MemberQuizSolveLog(Quiz quiz, QuizsushiMember member, Integer score) {
+    public GuestQuizSolveLog(Quiz quiz, String guestIp, String guestUa, Integer score) {
         this.quiz = quiz;
-        this.member = member;
+        this.guestIp = guestIp;
+        this.guestUa = guestUa;
         this.score = score;
     }
 

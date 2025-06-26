@@ -1,6 +1,10 @@
-package com.cmdlee.quizsushi.domain.dto.response;
+package com.cmdlee.quizsushi.quiz.dto.response;
 
-import com.cmdlee.quizsushi.domain.model.Question;
+import com.cmdlee.quizsushi.global.exception.ErrorCode;
+import com.cmdlee.quizsushi.global.exception.GlobalException;
+import com.cmdlee.quizsushi.quiz.domain.model.Question;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,18 +22,32 @@ public class GenerateQuizResponse {
     private String subject;
     private String question;
     private List<String> options;
-    private Integer correctAnswer;
+    private List<Integer> correctAnswer;
     private String correctAnswerText;
     private String explanation;
 
     public static GenerateQuizResponse from(Question question) {
+        ObjectMapper mapper = new ObjectMapper();
+        List<String> options = List.of();
+        List<Integer> correctAnswer = List.of();
+
+        try {
+            if (question.getOptions() != null) {
+                options = mapper.readValue(question.getOptions(), new TypeReference<>() {});
+            }
+            if (question.getCorrectIndexes() != null) {
+                correctAnswer = mapper.readValue(question.getCorrectIndexes(), new TypeReference<>() {});
+            }
+        } catch (Exception e) {
+            throw new GlobalException(ErrorCode.AI_RESPONSE_PARSE_FAILED);
+        }
         return GenerateQuizResponse.builder()
                 .no(question.getNo())
                 .type(question.getType().toString())
                 .subject(question.getSubject())
                 .question(question.getQuestionText())
-                .options(question.getOptions())
-                .correctAnswer(question.getCorrectIdx())
+                .options(options)
+                .correctAnswer(correctAnswer)
                 .correctAnswerText(question.getCorrectAnswerText())
                 .explanation(question.getExplanation())
                 .build();

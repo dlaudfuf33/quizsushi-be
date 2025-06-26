@@ -1,6 +1,6 @@
-package com.cmdlee.quizsushi.domain.dto.response;
+package com.cmdlee.quizsushi.quiz.dto.response;
 
-import com.cmdlee.quizsushi.domain.model.Category;
+import com.cmdlee.quizsushi.quiz.domain.model.Category;
 import lombok.Builder;
 import lombok.Data;
 

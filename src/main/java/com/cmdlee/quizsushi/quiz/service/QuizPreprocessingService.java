@@ -1,46 +1,26 @@
-package com.cmdlee.quizsushi.quiz.util;
+package com.cmdlee.quizsushi.quiz.service;
 
-import com.cmdlee.quizsushi.global.util.PasswordHasher;
-import com.cmdlee.quizsushi.minio.service.MinioService;
-import com.cmdlee.quizsushi.quiz.dto.QuestionCreationData;
+import com.cmdlee.quizsushi.member.domain.model.QuizsushiMember;
+import com.cmdlee.quizsushi.quiz.domain.model.Category;
 import com.cmdlee.quizsushi.quiz.dto.QuizCreationData;
 import com.cmdlee.quizsushi.quiz.dto.request.CreateQuizRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 @RequiredArgsConstructor
-public class DataProcessor {
-    private final MinioService minioService;
-    private final PasswordHasher passwordHasher;
+public class QuizPreprocessingService {
 
+    public QuizCreationData process(CreateQuizRequest request, QuizsushiMember member, Category category, String mediaKey) {
+        return QuizCreationData.builder()
+                .author(member)
+                .title(request.getTitle())
+                .category(category)
+                .description(request.getDescription())
+                .useSubject(request.isUseSubject())
+                .mediaKey(mediaKey)
+                .questionCount(request.getQuestions().size())
+                .build();
 
-    public QuizCreationData process(CreateQuizRequest request, Long quizId) {
-        List<QuestionCreationData> processedQuestions = request.getQuestions().stream()
-                .map(q -> new QuestionCreationData(
-                        q.getNo(),
-                        q.getType(),
-                        request.isUseSubject() ? q.getSubject() : "",
-                        minioService.rewriteTempMediaLinks(q.getQuestion(), quizId),
-                        q.getOptions().stream()
-                                .map(opt -> minioService.rewriteTempMediaLinks(opt, quizId))
-                                .toList(),
-                        q.getCorrectAnswer(),
-                        minioService.rewriteTempMediaLinks(q.getCorrectAnswerText(), quizId),
-                        minioService.rewriteTempMediaLinks(q.getExplanation(), quizId)
-                ))
-                .toList();
-
-        return new QuizCreationData(
-                request.getAuthorName(),
-                passwordHasher.hash(request.getPassword()),
-                request.getTitle(),
-                request.getDescription(),
-                request.isUseSubject(),
-                processedQuestions
-        );
     }
-
 }
