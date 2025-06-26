@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,15 +20,15 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class MinioService {
 
+    private static final String TEMP_PREFIX = "public/tmp/";
+    private static final String QUIZ_PREFIX = "public/quiz/";
+
     private final MinioClient minioClient;
     private final MinioProperties properties;
-    private final String TMP = "public/tmp/";
-    private final String QUIZ = "public/quiz/";
 
-    public String uploadTempFile(MultipartFile file) throws Exception {
-        String ext = extractExtension(file.getOriginalFilename());
-        String objectName = TMP + UUID.randomUUID() + ext;
 
+    public String uploadTempFile(MultipartFile file) {
+        String objectName = TEMP_PREFIX + UUID.randomUUID() + extractExtension(file.getOriginalFilename());
 
         try (InputStream is = file.getInputStream()) {
             minioClient.putObject(
@@ -38,13 +39,17 @@ public class MinioService {
                             .contentType(resolveContentType(file.getOriginalFilename()))
                             .build()
             );
+        } catch (Exception e) {
+            throw new GlobalException(ErrorCode.FILE_UPLOAD_FAILED, e);
         }
+
         return buildPublicUrl(objectName);
     }
 
     public String moveTempFileToQuizFolder(String tmpObjectKey, String mediaKey) {
         String fileName = tmpObjectKey.substring(tmpObjectKey.lastIndexOf("/") + 1);
-        String destObjectKey = QUIZ + mediaKey + "/" + fileName;
+        String destObjectKey = QUIZ_PREFIX + mediaKey + "/" + fileName;
+
 
         try (InputStream is = minioClient.getObject(
                 GetObjectArgs.builder()
@@ -76,7 +81,7 @@ public class MinioService {
     }
 
     public void deleteAllWithPrefix(String id) {
-        String prefix = QUIZ+id;
+        String prefix = QUIZ_PREFIX + id;
         try {
             Iterable<Result<Item>> results = minioClient.listObjects(
                     ListObjectsArgs.builder()
@@ -113,9 +118,7 @@ public class MinioService {
     }
 
     public String buildPublicUrl(String objectKey) {
-        String url = properties.getEndpoint() + "/" + properties.getBucket() + "/" + objectKey;
-        System.out.println(url);
-        return url;
+        return properties.getEndpoint() + "/" + properties.getBucket() + "/" + objectKey;
     }
 
     public String rewriteTempMediaLinks(String content, String mediaKey) {
@@ -124,7 +127,7 @@ public class MinioService {
         Pattern pattern = Pattern.compile("https?://[^\\s\"')>]+/(quizsushi/)?tmp/[^\\s\"')>]+");
         Matcher matcher = pattern.matcher(content);
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         while (matcher.find()) {
             String tmpUrl = matcher.group();
             String objectKey = extractObjectKeyFromUrl(tmpUrl);
@@ -139,9 +142,9 @@ public class MinioService {
         try {
             URI uri = new URI(url);
             String path = uri.getPath();
-            return path.substring(path.indexOf("public/tmp/"));
-        } catch (Exception e) {
-            throw new IllegalArgumentException("URL 파싱 실패: " + url, e);
+            return path.substring(path.indexOf(TEMP_PREFIX));
+        } catch (URISyntaxException e) {
+            throw new GlobalException(ErrorCode.URL_PARSE_FAILED, e);
         }
     }
 

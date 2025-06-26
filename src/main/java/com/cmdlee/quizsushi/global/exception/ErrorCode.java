@@ -42,6 +42,8 @@ public enum ErrorCode {
     INTERNAL_SERVER_ERROR("S001", "서버 내부 오류입니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     FILE_MOVE_FAILED("S002", "파일 이동에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     FILE_DELETE_FAILED("S003", "파일 삭제에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    FILE_UPLOAD_FAILED("S004", "파일 업로드에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    URL_PARSE_FAILED("S005", "URL 파싱에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
     // === [R] Redis 관련 ===
     REDIS_SERIALIZATION_FAILED("R001", "Redis 직렬화에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
