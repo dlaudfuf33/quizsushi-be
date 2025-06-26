@@ -24,7 +24,8 @@ public class RefreshTokenRedisService {
     @PostConstruct
     public void checkRedis() {
         try {
-            stringRedisTemplate.opsForValue().set("healthcheck", "ok", 10, TimeUnit.SECONDS);
+            redisTemplate.opsForValue().set("healthcheck",
+                    new RefreshTokenData("","","",Instant.now()), 10, TimeUnit.SECONDS);
             log.info("Redis 연결 성공");
         } catch (Exception e) {
             log.error("Redis 연결 실패");
