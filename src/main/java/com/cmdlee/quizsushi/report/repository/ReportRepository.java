@@ -1,7 +1,8 @@
-package com.cmdlee.quizsushi.admin.repository;
+package com.cmdlee.quizsushi.report.repository;
 
 import com.cmdlee.quizsushi.report.model.Report;
-import com.cmdlee.quizsushi.admin.dto.response.StatRawProjection;
+import com.cmdlee.quizsushi.admin.repository.projection.StatRawProjection;
+import com.cmdlee.quizsushi.report.model.enums.ReportStatusType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -28,6 +29,22 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
     List<StatRawProjection> findReportStats(@Param("type") String type,
                                             @Param("start") LocalDateTime start,
                                             @Param("end") LocalDateTime end
-                                            );
+    );
 
+    @Query("""
+              SELECT r FROM Report r
+              WHERE
+                (:searchQuery IS NULL OR
+                  r.title LIKE :searchQuery OR
+                  r.message LIKE :searchQuery OR
+                  r.reporter.email LIKE :searchQuery OR
+                  r.reporter.nickname  LIKE :searchQuery
+                )
+              AND (:status IS NULL OR r.status = :status)
+            """)
+    Page<Report> searchReports(
+            @Param("searchQuery") String searchQuery,
+            @Param("status") ReportStatusType status,
+            Pageable pageable
+    );
 }

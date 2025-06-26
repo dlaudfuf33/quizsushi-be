@@ -1,4 +1,4 @@
-package com.cmdlee.quizsushi.admin.dto.response;
+package com.cmdlee.quizsushi.report.dto.response;
 
 import com.cmdlee.quizsushi.report.model.Report;
 import lombok.Builder;
@@ -6,31 +6,31 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-@Builder
 @Getter
+@Builder
 public class ReportDetailResponse {
     private Long id;
     private String reason;
+    private String email;
+    private String nickname;
     private String title;
     private String message;
-    private String nickname;
-    private String email;
     private boolean isRead;
-    private LocalDateTime createdAt;
-
     private String targetType;
     private Long targetId;
+    private LocalDateTime createdAt;
 
     private ReportTargetRsponse target;
 
     public static ReportDetailResponse of(Report report, ReportTargetRsponse targetResponse) {
+
         return ReportDetailResponse.builder()
                 .id(report.getId())
-                .type(report.getType().name())
+                .reason(report.getReason().name())
                 .title(report.getTitle())
                 .message(report.getMessage())
-                .nickname(report.getMember() != null ? report.getMember().getNickname() : "-")
-                .email(report.getEmail() != null ? report.getEmail() : "-")
+                .nickname(report.getReporter() != null ? report.getReporter().getNickname() : "-")
+                .email(report.getReporter() != null ? report.getReporter().getEmail() : "-")
                 .isRead(report.isRead())
                 .createdAt(report.getCreatedAt())
                 .targetType(report.getTargetType() != null ? report.getTargetType().name() : null)

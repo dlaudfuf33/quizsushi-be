@@ -1,4 +1,4 @@
-package com.cmdlee.quizsushi.admin.dto.response;
+package com.cmdlee.quizsushi.report.dto.response;
 
 public interface ReportTargetRsponse {
     String getType();

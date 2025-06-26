@@ -1,4 +1,4 @@
-package com.cmdlee.quizsushi.admin.domain.model.enums;
+package com.cmdlee.quizsushi.report.model.enums;
 
 public enum ReportTargetType {
     QUIZ, MEMBER

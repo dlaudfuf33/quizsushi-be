@@ -1,4 +1,11 @@
 package com.cmdlee.quizsushi.report.dto.response;
 
-public class ReporterResponse {
+import lombok.Builder;
+import lombok.Getter;
+
+@Getter
+@Builder
+public  class ReporterResponse {
+    private Long id;
+    private String email;
 }

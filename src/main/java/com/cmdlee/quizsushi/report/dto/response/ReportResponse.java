@@ -1,38 +1,48 @@
-package com.cmdlee.quizsushi.admin.dto.response;
+package com.cmdlee.quizsushi.report.dto.response;
 
 import com.cmdlee.quizsushi.report.model.Report;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
-@Data
+@Getter
 @Builder
 public class ReportResponse {
+
     private Long id;
-    private String reason;
-    private String email;
-    private String nickname;
     private String title;
-    private boolean isRead;
-    private String targetType;
-    private Long targetId;
-    private LocalDateTime createdAt;
+    private String message;
+    private boolean read;
+    private String status;
+    private LocalDate createdAt;
+    private LocalDate updatedAt;
+
+    private ReporterResponse reporter;
+    private ReportedResponse reported;
 
     public static ReportResponse from(Report report) {
-        String nickName = report.getReporter().getNickname();
-        String email = report.getReporter().getEmail();
-
         return ReportResponse.builder()
                 .id(report.getId())
-                .reason(report.getReason())
-                .email(email)
-                .nickname(nickName)
                 .title(report.getTitle())
-                .isRead(report.isRead())
-                .targetType(report.getTargetType() != null ? report.getTargetType().name() : null)
-                .targetId(report.getTargetId())
-                .createdAt(report.getCreatedAt())
+                .message(report.getMessage())
+                .read(report.isRead())
+                .status(report.getStatus().name())
+                .createdAt(report.getCreatedAt().toLocalDate())
+                .updatedAt(report.getUpdatedAt().toLocalDate())
+
+                .reporter(ReporterResponse.builder()
+                        .id(report.getReporter() != null ? report.getReporter().getId() : null)
+                        .email(report.getReporter() != null ? report.getReporter().getEmail() : "익명")
+                        .build())
+
+                .reported(ReportedResponse.builder()
+                        .type(report.getTargetType() != null ? report.getTargetType().name() : null)
+                        .id(report.getTargetId())
+                        .targetName(report.getTargetType().name())
+                        .reason(report.getReason().name())
+                        .build())
+
                 .build();
     }
 }

@@ -1,5 +1,5 @@
-package com.cmdlee.quizsushi.admin.domain.model.enums;
+package com.cmdlee.quizsushi.report.model.enums;
 
 public enum ReasonType {
-    BUG, PROPOSAL, REPORT
+    BUG, PROPOSAL, REPORT, SPAM, COPYRIGHT, ETC
 }

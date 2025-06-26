@@ -1,4 +1,8 @@
 package com.cmdlee.quizsushi.report.handler;
 
-public class ReportTargetHandler {
+import com.cmdlee.quizsushi.report.model.enums.ReportTargetType;
+
+public interface ReportTargetHandler {
+    ReportTargetType getTargetType();
+    void validateTargetExists(Long targetId);
 }
