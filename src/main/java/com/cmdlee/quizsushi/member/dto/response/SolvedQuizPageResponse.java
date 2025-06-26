@@ -1,19 +1,15 @@
 package com.cmdlee.quizsushi.member.dto.response;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 
 import java.util.List;
 
-@Data
-@Builder
+@Getter
 @AllArgsConstructor
-public class SolvedQuizResponse {
+public class SolvedQuizPageResponse {
     private List<SolvedQuizResponse> quizzes;
-    private long totalElements;
-    private int totalPages;
     private int currentPage;
-
-
+    private int totalPages;
+    private long totalElements;
 }

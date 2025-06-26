@@ -3,20 +3,22 @@ package com.cmdlee.quizsushi.member.dto.response;
 
 import com.cmdlee.quizsushi.member.domain.model.QuizsushiMember;
 import com.cmdlee.quizsushi.member.domain.model.enums.PlanTier;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Builder
-public class memberMeResponse implements MeResponse {
-    public Long id;
-    public String email;
-    public String nickName;
-    public PlanTier planTier;
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public class MemberMeResponse implements MeResponse {
+    private Long id;
+    private String email;
+    private String nickName;
+    private PlanTier planTier;
 
-
-    public static MeResponse from(QuizsushiMember member) {
-        return MeResponse.builder()
+    public static MemberMeResponse from(QuizsushiMember member) {
+        return MemberMeResponse.builder()
                 .id(member.getId())
                 .email(member.getEmail())
                 .nickName(member.getNickname())

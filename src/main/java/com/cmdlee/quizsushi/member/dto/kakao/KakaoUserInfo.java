@@ -1,6 +1,7 @@
-package com.cmdlee.quizsushi.member.dto;
+package com.cmdlee.quizsushi.member.dto.kakao;
 
 import com.cmdlee.quizsushi.member.domain.model.enums.OAuthProvider;
+import com.cmdlee.quizsushi.member.dto.OAuthUserInfo;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

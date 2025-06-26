@@ -1,27 +1,30 @@
 package com.cmdlee.quizsushi.member.dto.response;
 
-import com.cmdlee.quizsushi.quiz.domain.model.QuizSolveLog;
+import com.cmdlee.quizsushi.quiz.domain.model.MemberQuizSolveLog;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 @Builder
-@AllArgsConstructor
-public class SolvedQuizDto {
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public class SolvedQuizResponse {
     private Long id;
     private String title;
     private Integer score;
     private String date;
     private String category;
 
-    public static SolvedQuizDto from(QuizSolveLog log) {
-        return SolvedQuizDto.builder()
-                .id(log.getQuiz().getId())
-                .title(log.getQuiz().getTitle())
+    public static SolvedQuizResponse from(MemberQuizSolveLog log) {
+        boolean isDeleted = log.getQuiz() == null;
+
+        return SolvedQuizResponse.builder()
+                .id(isDeleted ? null : log.getQuiz().getId())
+                .title(isDeleted ? "삭제된 퀴즈입니다" : log.getQuiz().getTitle())
                 .score(log.getScore())
                 .date(log.getSubmittedAt().toLocalDate().toString())
-                .category(log.getQuiz().getCategory().getTitle())
+                .category(isDeleted ? "알 수 없음" : log.getQuiz().getCategory().getTitle())
                 .build();
     }
 }
