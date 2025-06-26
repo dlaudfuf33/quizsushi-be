@@ -42,16 +42,20 @@ public class QuizsushiMember extends TimeBaseEntity {
     @Column(nullable = false)
     private String gender;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PlanTier planTier = PlanTier.FREE;
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean isDeleted = false;
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean isBan = false;
 
+    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OAuthAccount> oauthAccounts = new ArrayList<>();
 

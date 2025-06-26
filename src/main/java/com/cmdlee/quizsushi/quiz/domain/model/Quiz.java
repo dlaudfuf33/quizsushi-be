@@ -91,7 +91,7 @@ public class Quiz extends TimeBaseEntity {
     public void addQuestions(List<Question> questions) {
         validateDuplicate(questions);
         for (Question question : questions) {
-            question.setQuiz(this); // 연관관계 주인 설정
+            question.setQuiz(this);
         }
         this.questions.addAll(questions);
     }

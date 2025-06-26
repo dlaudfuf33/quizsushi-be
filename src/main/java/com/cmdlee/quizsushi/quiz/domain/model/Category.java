@@ -36,9 +36,6 @@ public class Category extends TimeBaseEntity{
     @Column(nullable = false, length = 10)
     private String icon;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Quiz> quizzes;
-
 
     @Builder
     public Category(String title, String description, String icon) {
