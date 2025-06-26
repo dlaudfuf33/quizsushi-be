@@ -72,3 +72,12 @@ logging:
   level:
     root: INFO
     com.cmdlee.quizsushi: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ${ACTUATOR_EXPOSURE:health,info}
+  endpoint:
+    health:
+      show-details: ${ACTUATOR_HEALTH_DETAILS:never}
