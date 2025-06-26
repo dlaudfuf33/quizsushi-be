@@ -37,15 +37,22 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
+            set -e
+            cd /home/ubuntu/quizsushi/be
+            echo "📁 서버 디렉토리 이동"
+          
+            echo "📦 도커 최신 이미지 가져오기"
             docker pull dlaudfuf33/quizsushi-be:${{ github.sha }}
-            docker stop quizsushi-be || true
-            docker rm quizsushi-be || true
-            docker stop redis || true
-            docker rm redis || true
-            docker network create quizsushi-net || true
-            docker run -d --name redis --network quizsushi-net -p 6379:6379 redis:7
-            docker run -d --name quizsushi-be \
-              --network quizsushi-net \
-              --env-file /home/ubuntu/docker/.env.prod \
-              -p 8080:8080 \
-              dlaudfuf33/quizsushi-be:${{ github.sha }}
+          
+            echo "🛑 기존 컨테이너 정리"
+            docker compose down
+          
+            echo "🚀 새 버전으로 컨테이너 실행"
+            docker compose up -d
+          
+            echo "📝 배포 버전 기록"
+            bash record_version.sh ${{ github.sha }}
+          
+            echo "✅ 배포 완료"
+
+           
