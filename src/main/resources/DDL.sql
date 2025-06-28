@@ -134,7 +134,7 @@ CREATE TABLE admin_member
     alias      VARCHAR(50) UNIQUE NOT NULL,
     username   VARCHAR(50) UNIQUE NOT NULL,
     password   VARCHAR(255)       NOT NULL,
-    role_bits  INTEGER            NOT NULL, -- 1|2|4->7<15
+    role       VARCHAR(20)        NOT NULL DEFAULT 'VIEWER', -- 1|2|4->7<15
     created_at TIMESTAMP                   DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP          NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -150,7 +150,7 @@ CREATE TABLE report
     reporter_id BIGINT REFERENCES quizsushi_member (id), -- 신고자 ID
     target_type VARCHAR(20),                             -- ex) QUIZ, MEMBER 등
     target_id   BIGINT,
-    is_read     boolean   NOT NULL DEFAULT false,
+    read        boolean   NOT NULL DEFAULT false,
     status      VARCHAR(20),
     created_at  TIMESTAMP          DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
