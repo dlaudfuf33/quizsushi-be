@@ -26,7 +26,7 @@ public class AiController {
 
     private final AiService aiService;
 
-    @PostMapping("/generate")
+    @PostMapping("/quizzes/questions")
     public ResponseEntity<CommonApiResponse<List<GenerateQuizResponse>>> generateQuizzes(
             @RequestBody GenerateQuizRequest request,
             @AuthenticationPrincipal CustomMemberDetails memberDetails) {
@@ -35,8 +35,7 @@ public class AiController {
         return ResponseEntity.ok(CommonApiResponse.ok(generateQuizByAI, "생성 성공"));
     }
 
-    private Long getAuthenticatedMemberId(CustomMemberDetails details) {
+    private void getAuthenticatedMemberId(CustomMemberDetails details) {
         if (details == null) throw new GlobalException(ErrorCode.UNAUTHORIZED);
-        return details.getId();
     }
 }
