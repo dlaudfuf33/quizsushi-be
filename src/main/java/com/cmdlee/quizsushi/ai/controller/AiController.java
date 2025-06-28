@@ -1,4 +1,4 @@
-package com.cmdlee.quizsushi.ai.ai.controller;
+package com.cmdlee.quizsushi.ai.controller;
 
 import com.cmdlee.quizsushi.global.config.security.member.CustomMemberDetails;
 import com.cmdlee.quizsushi.global.dto.CommonApiResponse;
@@ -7,7 +7,7 @@ import com.cmdlee.quizsushi.global.exception.GlobalException;
 import com.cmdlee.quizsushi.global.util.RejectBot;
 import com.cmdlee.quizsushi.quiz.dto.request.GenerateQuizRequest;
 import com.cmdlee.quizsushi.quiz.dto.response.GenerateQuizResponse;
-import com.cmdlee.quizsushi.ai.ai.service.AiService;
+import com.cmdlee.quizsushi.ai.service.AiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

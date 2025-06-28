@@ -7,7 +7,7 @@ import com.cmdlee.quizsushi.global.util.RejectBot;
 import com.cmdlee.quizsushi.global.config.security.member.CustomMemberDetails;
 import com.cmdlee.quizsushi.quiz.dto.request.*;
 import com.cmdlee.quizsushi.quiz.dto.response.*;
-import com.cmdlee.quizsushi.ai.ai.service.AiService;
+import com.cmdlee.quizsushi.ai.service.AiService;
 import com.cmdlee.quizsushi.quiz.service.CategoryService;
 import com.cmdlee.quizsushi.quiz.service.QuizService;
 import jakarta.servlet.http.HttpServletRequest;

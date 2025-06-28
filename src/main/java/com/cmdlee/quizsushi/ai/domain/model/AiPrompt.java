@@ -1,4 +1,4 @@
-package com.cmdlee.quizsushi.ai.ai.domain.model;
+package com.cmdlee.quizsushi.ai.domain.model;
 
 import com.cmdlee.quizsushi.quiz.domain.model.TimeBaseEntity;
 import jakarta.persistence.*;
