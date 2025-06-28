@@ -52,6 +52,18 @@ public class GenerateQuizResponse {
                 .explanation(question.getExplanation())
                 .build();
     }
-
+    @Override
+    public String toString() {
+        return "\n📘 GenerateQuizResponse {" +
+                "\n  📌 no = " + no +
+                "\n  🧩 type = '" + type + '\'' +
+                "\n  📚 subject = '" + subject + '\'' +
+                "\n  ❓ question = '" + question + '\'' +
+                "\n  🔘 options = " + options +
+                "\n  ✅ correctAnswer = " + correctAnswer +
+                "\n  ✍️ correctAnswerText = '" + correctAnswerText + '\'' +
+                "\n  💡 explanation = '" + explanation + '\'' +
+                "\n}";
+    }
 }
 
