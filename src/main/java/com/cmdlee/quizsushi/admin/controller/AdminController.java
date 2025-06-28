@@ -52,7 +52,7 @@ public class AdminController {
             @RequestParam("start") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
             @RequestParam("end") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
             @RequestParam("trunc") String truncType) {
-        if (end.isAfter(start)) {
+        if (start.isAfter(end)) {
             throw new GlobalException(ErrorCode.WRONG_DATE_RANGE);
         }
         List<StatRawResponse> statRawResponses = adminService.getStats(start, end, truncType);
