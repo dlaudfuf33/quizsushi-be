@@ -1,8 +1,8 @@
-package com.cmdlee.quizsushi.quiz.service;
+package com.cmdlee.quizsushi.ai.ai.service;
 
 import com.cmdlee.quizsushi.quiz.dto.request.GenerateQuizRequest;
 import com.cmdlee.quizsushi.quiz.dto.response.GenerateQuizResponse;
-import com.cmdlee.quizsushi.quiz.repository.AiPromptRepository;
+import com.cmdlee.quizsushi.ai.ai.repository.AiPromptRepository;
 import com.cmdlee.quizsushi.global.exception.ErrorCode;
 import com.cmdlee.quizsushi.global.exception.GlobalException;
 import com.fasterxml.jackson.core.type.TypeReference;

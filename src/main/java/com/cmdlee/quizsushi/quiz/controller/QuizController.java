@@ -7,7 +7,7 @@ import com.cmdlee.quizsushi.global.util.RejectBot;
 import com.cmdlee.quizsushi.global.config.security.member.CustomMemberDetails;
 import com.cmdlee.quizsushi.quiz.dto.request.*;
 import com.cmdlee.quizsushi.quiz.dto.response.*;
-import com.cmdlee.quizsushi.quiz.service.AiService;
+import com.cmdlee.quizsushi.ai.ai.service.AiService;
 import com.cmdlee.quizsushi.quiz.service.CategoryService;
 import com.cmdlee.quizsushi.quiz.service.QuizService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -60,7 +60,8 @@ public class QuizController {
             @Valid @RequestBody CreateQuizRequest request,
             @AuthenticationPrincipal CustomMemberDetails memberDetails
     ) {
-        CreatedQuizResponse createQuizResponse = quizService.createQuiz(request, memberDetails.getId());
+        long memberId = getAuthenticatedMemberId(memberDetails);
+        CreatedQuizResponse createQuizResponse = quizService.createQuiz(request, memberId);
         return ResponseEntity.ok(CommonApiResponse.ok(createQuizResponse, "퀴즈 생성 성공"));
     }
 
@@ -79,10 +80,8 @@ public class QuizController {
             @Valid @RequestBody UpdateQuizRequest request,
             @AuthenticationPrincipal CustomMemberDetails memberDetails
     ) {
-        if (memberDetails == null) {
-            throw new GlobalException(ErrorCode.UNAUTHORIZED);
-        }
-        UpdatedQuizResponse updateQuiz = quizService.updateQuiz(request, memberDetails.getId());
+        long memberId = getAuthenticatedMemberId(memberDetails);
+        UpdatedQuizResponse updateQuiz = quizService.updateQuiz(request, memberId);
         return ResponseEntity.ok(CommonApiResponse.ok(updateQuiz, "수정 성공"));
     }
 
@@ -91,23 +90,9 @@ public class QuizController {
     public ResponseEntity<CommonApiResponse<Void>> deleteQuiz(
             @PathVariable("id") Long quizId,
             @AuthenticationPrincipal CustomMemberDetails memberDetails) {
-        if (memberDetails == null) {
-            throw new GlobalException(ErrorCode.UNAUTHORIZED);
-        }
-        quizService.deleteQuiz(quizId, memberDetails.getId());
+        long memberId = getAuthenticatedMemberId(memberDetails);
+        quizService.deleteQuiz(quizId, memberId);
         return ResponseEntity.ok(CommonApiResponse.ok(null, "삭제 성공"));
-    }
-
-    @RejectBot
-    @PostMapping("/generate")
-    public ResponseEntity<CommonApiResponse<List<GenerateQuizResponse>>> generateQuizzes(
-            @RequestBody GenerateQuizRequest request,
-            @AuthenticationPrincipal CustomMemberDetails memberDetails) {
-        if (memberDetails == null) {
-            throw new GlobalException(ErrorCode.UNAUTHORIZED);
-        }
-        List<GenerateQuizResponse> generateQuizByAI = aiService.generateQuizByAI(request);
-        return ResponseEntity.ok(CommonApiResponse.ok(generateQuizByAI, "생성 성공"));
     }
 
     @RejectBot
@@ -116,10 +101,8 @@ public class QuizController {
             @PathVariable("id") Long quizId,
             @RequestBody @Valid QuizRatingRequest request,
             @AuthenticationPrincipal CustomMemberDetails memberDetails) {
-        if (memberDetails == null) {
-            throw new GlobalException(ErrorCode.UNAUTHORIZED);
-        }
-        quizService.rateQuiz(quizId, memberDetails.getId(), request);
+        long memberId = getAuthenticatedMemberId(memberDetails);
+        quizService.rateQuiz(quizId, memberId, request);
         return ResponseEntity.ok(CommonApiResponse.ok(null, "퀴즈 평점 등록 성공"));
     }
 
@@ -142,4 +125,8 @@ public class QuizController {
         return ResponseEntity.ok(CommonApiResponse.ok(null, "퀴즈 풀이 기록 완료"));
     }
 
+    private Long getAuthenticatedMemberId(CustomMemberDetails details) {
+        if (details == null) throw new GlobalException(ErrorCode.UNAUTHORIZED);
+        return details.getId();
+    }
 }

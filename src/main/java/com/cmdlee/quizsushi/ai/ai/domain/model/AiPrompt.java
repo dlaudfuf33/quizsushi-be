@@ -1,5 +1,6 @@
-package com.cmdlee.quizsushi.quiz.domain.model;
+package com.cmdlee.quizsushi.ai.ai.domain.model;
 
+import com.cmdlee.quizsushi.quiz.domain.model.TimeBaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -9,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "ai_prompts")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AiPrompt extends TimeBaseEntity{
+public class AiPrompt extends TimeBaseEntity {
 
     @Id
     @GeneratedValue(
