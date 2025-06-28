@@ -3,6 +3,7 @@ package com.cmdlee.quizsushi.ai.adapter;
 import com.cmdlee.quizsushi.ai.prompt.PromptBuilder;
 import com.cmdlee.quizsushi.ai.router.AiInstanceRouter;
 import com.cmdlee.quizsushi.global.config.ai.AiProperties;
+import com.cmdlee.quizsushi.global.exception.ErrorCode;
 import com.cmdlee.quizsushi.global.exception.GlobalException;
 import com.cmdlee.quizsushi.quiz.dto.request.GenerateQuizRequest;
 import com.cmdlee.quizsushi.quiz.dto.response.GenerateQuizResponse;
@@ -62,8 +63,13 @@ public class MistralAdapter implements AiModelAdapter {
             log.error("[MISTRAL ERROR] Failed to call AI", e);
             throw new GlobalException(AI_COMMUNICATION_FAILED, e);
         }
+        log.trace("[🧠 AI Raw Response]: {}", aiRaw);
+        List<GenerateQuizResponse> generateQuizResponseList = parse(aiRaw);
 
-        return parse(aiRaw);
+        generateQuizResponseList.forEach(response ->
+                log.trace("[🧪 GENERATED QUIZ] {}", response)
+        );
+        return generateQuizResponseList;
     }
 
 
@@ -72,10 +78,18 @@ public class MistralAdapter implements AiModelAdapter {
             Map<String, Object> aiRawMap = objectMapper.readValue(aiRaw, new TypeReference<>() {
             });
             String responseStr = objectMapper.convertValue(aiRawMap.get("response"), String.class);
-            String cleaned = responseStr.replaceAll("(?s)```json\\s*|```", "").trim();
-            return List.of(objectMapper.readValue(cleaned, GenerateQuizResponse[].class));
+
+            int startIdx = responseStr.indexOf('[');
+            int endIdx = responseStr.lastIndexOf(']');
+            if (startIdx == -1 || endIdx == -1 || startIdx >= endIdx) {
+                throw new GlobalException(ErrorCode.AI_RESPONSE_PARSE_FAILED);
+            }
+
+            String jsonArray = responseStr.substring(startIdx, endIdx + 1);
+
+            return List.of(objectMapper.readValue(jsonArray, GenerateQuizResponse[].class));
         } catch (Exception e) {
-            throw new GlobalException(AI_RESPONSE_PARSE_FAILED, e);
+            throw new GlobalException(ErrorCode.AI_RESPONSE_PARSE_FAILED, e);
         }
     }
 }
