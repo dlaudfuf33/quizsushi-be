@@ -1,142 +1,70 @@
 # 🍣 QuizSushi - Backend
 
-**QuizSushi**는 사용자가 직접 퀴즈를 만들고 풀며, 초밥처럼 다양한 지식을 맛보는 참여형 퀴즈 플랫폼입니다.  
-Spring Boot 기반 REST API 서버로, 인증과 퀴즈 생성·풀이, 신고 및 통계 기능을 포함합니다.
+**QuizSushi**는 사용자가 직접 퀴즈를 만들고 풀며 지식을 나누는 플랫폼입니다. 이 저장소는 Spring Boot 기반의 백엔드 코드로, 실서비스 운영을 목표로 설계되었습니다. 
+OAuth2 로그인부터 관리자 전용 대시보드, Redis 기반 토큰 관리, Docker 배포 자동화까지 포함되어 있습니다.
 
----
+👉 실제 이용: https://quizsushi.cmdlee.com/
 
-## ✅ 기술 스택
+## 주요 특징
 
-| 분야       | 사용 기술 |
-|------------|------------------------------------------------|
-| Language   | Java 17 |
-| Framework  | Spring Boot, Spring Security, Spring Data JPA |
-| DB         | PostgreSQL, Redis |
-| Build Tool | Gradle |
-| Infra      | Docker, Docker Compose, NGINX, MinIO |
-| CI/CD      | GitHub Actions + DockerHub + Self-hosted Ubuntu Server |
+- **JWT 인증과 토큰 자동 갱신**: 액세스 토큰이 만료되면 Redis에 저장된 리프레시 토큰을 이용해 서버 필터가 새 토큰을 발급합니다. 리프레시 토큰은 `회원ID + User-Agent` 조합으로 검증하여 다른 환경에서의 재사용을 차단합니다.
+- **봇 접근 차단**: `@RejectBot` 애노테이션과 `UserAgentAspect`가 의심스러운 User-Agent를 탐지하여 요청을 거부합니다.
+- **두 가지 보안 체인**: API용 JWT 기반 필터 체인과 관리자 페이지용 세션 기반 필터 체인을 분리하여 적용합니다. 관리자 계정은 `ROOT > ADMIN > MANAGER > VIEWER` 순으로 계층화된 권한을 가집니다.
+- **MinIO 미디어 관리**: 업로드된 파일은 임시 폴더(`public/tmp`)에 저장됐다가 퀴즈 저장 시 `public/quiz/{mediaKey}` 경로로 이동하며, 본문 내 임시 링크도 자동으로 재작성됩니다.
+- **AI 문제 생성**: `AiService`가 로컬 AI 서버와 통신하여 퀴즈 문제를 생성합니다. 프롬프트는 DB에서 관리하여 업데이트할 수 있습니다.
+- **로깅 커스터마이징**: `EmojiLevelConverter`를 사용해 로그 레벨을 이모지로 표시하고, `RequestLoggingAspect`와 `LoggingInterceptor`가 모든 요청과 메서드 실행 시간을 기록합니다.
+- **Docker 기반 CI/CD**: GitHub Actions가 이미지를 빌드해 DockerHub로 푸시하고, 원격 서버에 배포합니다.
 
----
-
-## 🧩 주요 기능
-
-- 회원 가입 및 소셜 로그인(Google, Kakao)
-- 문제 출제 / 풀이 / 신고 시스템
-- 관리자 전용 대시보드 (통계, 신고 처리 등)
-- OAuth2 인증 기반 로그인과 권한 관리
-- Redis 기반 JWT 인증 및 자동 토큰 재발급
-- MinIO 기반 이미지 업로드 및 링크 재작성
-- **봇 접근 차단**: `@RejectBot` 애노테이션 + `UserAgentAspect` 활용
-- **AI 기반 문제 생성**: `AiService`가 WebClient로 로컬 AI 서버와 통신
-- **이모지 로그 및 요청 로깅**: `EmojiLevelConverter`, `RequestLoggingAspect`
-- **Docker 기반 배포 자동화**: GitHub Actions에서 이미지 빌드 및 서버 자동 배포
-- 관리자 Role 계층 구조: `ROOT > ADMIN > MANAGER > VIEWER`
-
-> ⚠️ 실시간 퀴즈 대결 및 포인트 보상 시스템은 아직 구현되지 않았습니다.
-
----
-
-## 🔐 인증 구조 요약
-
-- **AccessToken**: JWT / `Authorization: Bearer` 헤더 사용
-- **RefreshToken**: JWT / `HttpOnly + Secure + SameSite=Strict` 쿠키로 전송
-- **토큰 식별 및 검증**: Redis에 `회원ID + User-Agent + IP` 기준으로 저장 및 갱신 검증
-- **자동 갱신**: AccessToken 만료 시 서버 필터가 RefreshToken으로 재발급
-
----
-
-## 🧑‍💻 사용자 vs 관리자 인증 구조 비교
-
-QuizSushi는 **사용자와 관리자에 대해 인증/인가 구조를 분리**하여 역할에 맞는 보안 정책을 적용했습니다.
-
-| 항목 | 일반 사용자 (User) | 관리자 (Admin) |
-|------|--------------------|----------------|
-| **인증 방식** | 소셜 로그인 (OAuth2) | ID/PW 기반 폼 로그인 |
-| **AccessToken 전송** | `Authorization: Bearer` 헤더 | 동일 |
-| **RefreshToken 전송** | `HttpOnly + Secure` 쿠키 | 동일 |
-| **보안 필터 체인** | `/api/**` 경로에 전용 필터 체인 적용 | `/cmdlee/**` 경로에 별도 필터 체인 적용 |
-| **세션 구조** | Stateless (무세션) | 동일 (JWT 기반 무세션) |
-| **권한 계층** | 없음 (기본 사용자) | `ROOT > ADMIN > MANAGER > VIEWER` |
-| **리디렉션 처리** | 소셜 콜백 처리 | 로그인/로그아웃 시 커스텀 URI 처리 |
-| **주요 사용 목적** | 퀴즈 풀이/출제 | 신고 처리, 통계 분석 등 운영 |
-
-> 🔐 관리자 인증도 JWT 기반으로 통일하여 관리 편의성과 확장성을 고려하였습니다.  
-> URL 패턴 기반의 필터 분리 전략으로 보안과 유지보수성을 강화했습니다.
-
----
-
-## 🗂 프로젝트 구조
+## 프로젝트 구조
 
 ```
 quizsushi-be/
 ├── src
 │   ├── main
 │   │   ├── java/com/cmdlee/quizsushi
-│   │   │   ├── admin/       # 관리자 기능
-│   │   │   ├── member/      # 회원 도메인
-│   │   │   ├── quiz/        # 퀴즈 도메인
-│   │   │   ├── report/      # 신고 도메인
-│   │   │   ├── global/      # 공통 설정 및 유틸
-│   │   │   └── minio/       # 이미지 업로드 기능
+│   │   │   ├── admin/          # 관리자 기능
+│   │   │   ├── member/         # 회원 도메인
+│   │   │   ├── quiz/           # 퀴즈 도메인
+│   │   │   ├── report/         # 신고 도메인
+│   │   │   ├── global/         # 공통 설정, AOP, 보안
+│   │   │   └── minio/          # 파일 업로드 모듈
 │   │   └── resources
 │   │       ├── application.yml
 │   │       └── init.sql
 └── build.gradle
 ```
 
----
+## 인증 흐름
 
-## 🚀 배포 전략
+1. 사용자가 로그인하면 서버가 AccessToken과 RefreshToken을 모두 쿠키로 내려줍니다.
+2. AccessToken 만료 시 `JwtAuthenticationFilter`가 RefreshToken을 읽어 Redis에서 일치하는 값을 조회합니다.
+3. 저장된 User-Agent와 현재 요청의 User-Agent가 다르면 `TOKEN_CLIENT_MISMATCH` 오류로 갱신을 거부합니다.
+4. 검증이 완료되면 새로운 AccessToken을 생성해 `Set-Cookie` 헤더로 응답합니다.
 
-### ✅ 운영 서버 구성
+## 관리자 보안 체계
 
-- **Docker 기반 배포**  
-  백엔드와 Redis를 각각 컨테이너로 관리하며, `.env.prod`를 통해 민감정보 관리
+- `/api/**` 경로는 JWT 기반의 Stateless 보안 필터 체인을 사용합니다.
+- `/cmdlee-qs/**` 경로는 세션 로그인을 사용하며, 로그인 성공 시 `/cmdlee/dashboard`로 리다이렉트합니다.
+- `RoleHierarchy` Bean을 통해 상위 권한이 하위 권한을 자동으로 포함하도록 구성했습니다.
+- 접근 거부 시 요청 정보와 인증 주체를 상세 로그로 남깁니다.
 
-- **도커 컴포즈 예시**
-  ```yaml
-  services:
-    backend:
-      image: dlaudfuf33/quizsushi-be:${IMAGE_TAG}
-      env_file:
-        - .env.prod
-      ports:
-        - "8080:8080"
-      depends_on:
-        - redis
-      networks:
-        - quizsushi-net
-    redis:
-      image: redis:7
-  ```
+## 배포 전략
 
-### ✅ CI/CD 구성
+- `Dockerfile`과 `docker-compose`를 이용해 애플리케이션과 Redis를 컨테이너로 구동합니다.
+- `.github/workflows/backend.yml`에서 이미지 빌드 후 DockerHub에 푸시하고, SSH로 운영 서버에 접속해 새 컨테이너를 실행합니다.
+- 운영용 환경 변수 파일은 서버에만 존재하며 Git에는 포함하지 않습니다.
 
-- GitHub Actions 워크플로우는 `main` 브랜치 푸시 시 다음을 자동 수행:
-  1. Docker 이미지 빌드 및 DockerHub에 푸시
-  2. 운영 서버 SSH 접속 → 기존 컨테이너 중단 및 새 이미지로 재실행
-  3. 배포 버전 로그 기록
 
----
+## 기술 스택
 
-## 🧪 로컬 개발 환경
-
-```bash
-# 1. 환경 변수 설정
-cp .env.example .env
-
-# 2. 의존성 설치 및 실행
-./gradlew build
-./gradlew bootRun
-
-# 또는 Docker로 실행
-docker build -t quizsushi-be .
-docker run --env-file .env -p 8080:8080 quizsushi-be
-```
-
-- 로컬 PostgreSQL 및 Redis는 직접 실행하거나 Docker를 이용
-- 초기 DB 데이터: `src/main/resources/init.sql` 참고
-
+| 분야       | 사용 기술                                                    |
+|------------|---------------------------------------------------------------|
+| Language   | Java 17                                                      |
+| Framework  | Spring Boot, Spring Security, Spring Data JPA               |
+| DB         | PostgreSQL, Redis                                           |
+| Infra      | Docker, Docker Compose, NGINX, MinIO                         |
+| Build Tool | Gradle                                                       |
+| CI/CD      | GitHub Actions + DockerHub + Self-hosted Ubuntu Server       |
 ---
 
 ## 🗂 커밋 컨벤션
@@ -157,5 +85,3 @@ docker run --env-file .env -p 8080:8080 quizsushi-be
 
 ## 💬 기타
 
-- Spring Security + Redis + Docker를 바탕으로 실제 운영 환경에서 고려해야 할 인증 흐름, 세션 관리, 배포 자동화를 구성하는 데 중점을 두었습니다.
-- 실시간 퀴즈, 포인트 시스템, 갓챠 등은 추후 업데이트 예정입니다.
