@@ -15,7 +15,7 @@ public class AiInstanceRouter {
     private final AtomicInteger index = new AtomicInteger(0);
 
     public String nextUrl() {
-        List<String> urls = aiProperties.getBaseUrls();
+        List<String> urls = aiProperties.getUrls();
         int i = index.getAndUpdate(n -> (n + 1) % urls.size());
         return urls.get(i);
     }
