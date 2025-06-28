@@ -18,7 +18,7 @@ public enum ErrorCode {
     DUPLICATE_RATING("V008", "중복 평가 차단", HttpStatus.BAD_REQUEST),
     UNSUPPORTED_REPORT_TARGET("V009", "지원하지 않는 신고 유형입니다.", HttpStatus.BAD_REQUEST),
     UNSUPPORTED_REPORT_STATUS("V010", "지원하지 않는 신고 상태입니다.", HttpStatus.BAD_REQUEST),
-    WRONG_DATE_RANGE("V0011", "미래 시각은 지정할 수 없습니다.", HttpStatus.BAD_REQUEST),
+    WRONG_DATE_RANGE("V0011", "종료일이 시작일보다 빠를 수 없습니다.", HttpStatus.BAD_REQUEST),
 
     // === [A] Auth Errors (401/403) ===
     USER_ID_REQUIRED("A001", "userId 정보가 필요합니다.", HttpStatus.BAD_REQUEST),
@@ -55,6 +55,7 @@ public enum ErrorCode {
     AI_EMPTY_RESPONSE("E003", "AI 응답이 비어 있습니다.", HttpStatus.BAD_REQUEST),
     AI_RESPONSE_PARSE_FAILED("E004", "AI 응답 파싱에 실패했습니다.", HttpStatus.BAD_REQUEST),
     AI_COMMUNICATION_FAILED("E005", "AI 서버와의 통신에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    AI_MODEL_NOT_FOUND("E005", "잘못된 AI 모델입니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
     // === [O] OAuth 관련 ===
     OAUTH_REDIRECT_FAILED("O001", "OAuth 리다이렉트에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
