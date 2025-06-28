@@ -10,6 +10,6 @@ import java.util.List;
 @Setter
 @ConfigurationProperties(prefix = "ai")
 public class AiProperties {
-    private List<String> baseUrls;
+    private List<String> urls;
     private boolean stream;
 }
