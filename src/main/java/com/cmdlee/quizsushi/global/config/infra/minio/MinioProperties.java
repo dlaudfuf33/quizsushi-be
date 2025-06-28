@@ -1,12 +1,12 @@
-package com.cmdlee.quizsushi.global.infra.minio;
+package com.cmdlee.quizsushi.global.config.infra.minio;
 
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties(prefix = "minio")
 @Getter
 @Setter
+@ConfigurationProperties(prefix = "minio")
 public class MinioProperties {
     private String endpoint;
     private String accessKey;

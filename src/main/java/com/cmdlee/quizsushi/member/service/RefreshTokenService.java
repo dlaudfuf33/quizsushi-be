@@ -2,7 +2,7 @@ package com.cmdlee.quizsushi.member.service;
 
 import com.cmdlee.quizsushi.global.exception.ErrorCode;
 import com.cmdlee.quizsushi.global.exception.GlobalException;
-import com.cmdlee.quizsushi.global.infra.redis.RefreshTokenRedisService;
+import com.cmdlee.quizsushi.global.config.infra.redis.RefreshTokenRedisService;
 import com.cmdlee.quizsushi.member.domain.model.RefreshTokenData;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;

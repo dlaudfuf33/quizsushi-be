@@ -1,4 +1,4 @@
-package com.cmdlee.quizsushi.global.infra.redis;
+package com.cmdlee.quizsushi.global.config.infra.redis;
 
 import com.cmdlee.quizsushi.member.domain.model.RefreshTokenData;
 import com.fasterxml.jackson.databind.ObjectMapper;

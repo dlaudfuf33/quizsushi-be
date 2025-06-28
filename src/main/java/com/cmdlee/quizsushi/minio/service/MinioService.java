@@ -2,7 +2,7 @@ package com.cmdlee.quizsushi.minio.service;
 
 import com.cmdlee.quizsushi.global.exception.ErrorCode;
 import com.cmdlee.quizsushi.global.exception.GlobalException;
-import com.cmdlee.quizsushi.global.infra.minio.MinioProperties;
+import com.cmdlee.quizsushi.global.config.infra.minio.MinioProperties;
 import io.minio.*;
 import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.cmdlee.quizsushi.global.infra.redis;
+package com.cmdlee.quizsushi.global.config.infra.redis;
 
 import com.cmdlee.quizsushi.member.domain.model.RefreshTokenData;
 import jakarta.annotation.PostConstruct;
@@ -25,11 +25,10 @@ public class RefreshTokenRedisService {
     public void checkRedis() {
         try {
             redisTemplate.opsForValue().set("healthcheck",
-                    new RefreshTokenData("","","",Instant.now()), 10, TimeUnit.SECONDS);
+                    new RefreshTokenData("", "", "", Instant.now()), 10, TimeUnit.SECONDS);
             log.info("Redis 연결 성공");
         } catch (Exception e) {
-            log.error("Redis 연결 실패");
-            e.printStackTrace();
+            log.error("Redis 연결 실패 {}", e.getMessage());
         }
     }
 
@@ -83,7 +82,7 @@ public class RefreshTokenRedisService {
     }
 
     private String getIndexKey(String memberId) {
-        return "refresh:index:"+ memberId;
+        return "refresh:index:" + memberId;
     }
 
     private String getUUIDKey(String refreshUUID) {
