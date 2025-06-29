@@ -2,7 +2,6 @@ package com.cmdlee.quizsushi.quiz.domain.factory;
 
 import com.cmdlee.quizsushi.quiz.domain.model.Question;
 import com.cmdlee.quizsushi.quiz.domain.model.Quiz;
-import com.cmdlee.quizsushi.quiz.domain.model.enums.QuestionType;
 import com.cmdlee.quizsushi.quiz.dto.QuestionCreationData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -15,7 +14,7 @@ public class QuizQuestionFactory implements QuestionFactory {
     public Question create(QuestionCreationData data, Quiz quiz) {
         return Question.builder()
                 .no(data.getNo())
-                .type(QuestionType.valueOf(data.getType()))
+                .type(data.getType())
                 .subject(data.getSubject())
                 .questionText(data.getQuestionText())
                 .options(data.getOptions())

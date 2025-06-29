@@ -1,13 +1,14 @@
 package com.cmdlee.quizsushi.quiz.dto.request;
 
-import lombok.Data;
+import com.cmdlee.quizsushi.quiz.domain.model.enums.QuestionType;
+import lombok.Getter;
 
 import java.util.List;
 
-@Data
+@Getter
 public class UpdateQuestionRequest {
     private Integer no;
-    private String type;
+    private QuestionType type;
     private String subject;
     private String question;
     private List<String> options;

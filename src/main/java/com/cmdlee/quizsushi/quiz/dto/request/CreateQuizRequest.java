@@ -2,11 +2,11 @@ package com.cmdlee.quizsushi.quiz.dto.request;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
+import lombok.Getter;
 
 import java.util.List;
 
-@Data
+@Getter
 public class CreateQuizRequest {
 
     @NotNull
@@ -15,7 +15,6 @@ public class CreateQuizRequest {
     @NotNull
     private Long categoryId;
 
-    @NotNull
     private String description;
 
     private boolean useSubject;
