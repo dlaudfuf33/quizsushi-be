@@ -38,11 +38,7 @@ admin:
   root:
     id: root
     password: ${ADMIN_ROOT_PASSWORD}
-  login:
-    success-url: ${ADMIN_LOGIN_SUCCESS}
-    failure-url: ${ADMIN_LOGIN_FAILURE}
-  logout:
-    success-url: ${ADMIN_LOGOUT_SUCCESS}
+
 
 oauth:
   kakao:
@@ -67,6 +63,7 @@ logging:
   level:
     root: INFO
     com.cmdlee.quizsushi: DEBUG
+    org.springframework.web.reactive.function.client.ExchangeFunctions: TRACE
 
 minio:
   endpoint: ${MINIO_ENDPOINT}

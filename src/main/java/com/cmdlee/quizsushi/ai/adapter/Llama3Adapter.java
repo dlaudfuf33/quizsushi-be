@@ -42,7 +42,8 @@ public class Llama3Adapter implements AiModelAdapter {
         String prompt = promptBuilder.build("quiz_generation", request);
         String targetUrl = instanceRouter.nextUrl();
         String aiRaw;
-
+        log.debug("[LLAMA3 DEBUG] targetUrl = {}", targetUrl);
+        log.debug("[LLAMA3 DEBUG] prompt = {}", prompt);
         try {
             aiRaw = webClient.post()
                     .uri(targetUrl + "/api/generate")
@@ -53,6 +54,10 @@ public class Llama3Adapter implements AiModelAdapter {
                             "stream", aiProperties.isStream()
                     ))
                     .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            clientResponse -> clientResponse.bodyToMono(String.class)
+                                    .map(body -> new RuntimeException("AI 호출 실패 - 상태: " + clientResponse.statusCode() + ", 응답: " + body))
+                    )
                     .bodyToMono(String.class)
                     .block();
 
