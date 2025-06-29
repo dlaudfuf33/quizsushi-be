@@ -6,7 +6,10 @@ import com.cmdlee.quizsushi.global.config.infra.minio.MinioProperties;
 import io.minio.*;
 import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
@@ -16,6 +19,7 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MinioService {
@@ -130,8 +134,12 @@ public class MinioService {
         StringBuilder sb = new StringBuilder();
         while (matcher.find()) {
             String tmpUrl = matcher.group();
-            String objectKey = extractObjectKeyFromUrl(tmpUrl);
-            String publicUrl = moveTempFileToQuizFolder(objectKey, mediaKey);
+            String tmpObjectKey = extractObjectKeyFromUrl(tmpUrl);
+            String fileName = tmpObjectKey.substring(tmpObjectKey.lastIndexOf("/") + 1);
+            String destObjectKey = QUIZ_PREFIX + mediaKey + "/" + fileName;
+            String publicUrl = buildPublicUrl(destObjectKey);
+
+            registerMoveAfterCommit(tmpObjectKey, destObjectKey);
             matcher.appendReplacement(sb, Matcher.quoteReplacement(publicUrl));
         }
         matcher.appendTail(sb);
@@ -153,5 +161,41 @@ public class MinioService {
             return filename.substring(filename.lastIndexOf("."));
         }
         return "";
+    }
+
+    private void registerMoveAfterCommit(String tmpObjectKey, String destObjectKey) {
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    try (InputStream is = minioClient.getObject(
+                            GetObjectArgs.builder()
+                                    .bucket(properties.getBucket())
+                                    .object(tmpObjectKey)
+                                    .build())) {
+
+                        minioClient.putObject(
+                                PutObjectArgs.builder()
+                                        .bucket(properties.getBucket())
+                                        .object(destObjectKey)
+                                        .stream(is, -1, 10485760)
+                                        .contentType(resolveContentType(destObjectKey))
+                                        .build());
+
+                        minioClient.removeObject(RemoveObjectArgs.builder()
+                                .bucket(properties.getBucket())
+                                .object(tmpObjectKey)
+                                .build());
+
+                        log.debug("afterCommit: success move file: {} → {}", tmpObjectKey, destObjectKey);
+                    } catch (Exception e) {
+                        log.error("afterCommit fail move file: {}", tmpObjectKey, e);
+                    }
+                }
+            });
+        } else {
+            log.warn("called out of transation");
+            moveTempFileToQuizFolder(tmpObjectKey, destObjectKey);
+        }
     }
 }
