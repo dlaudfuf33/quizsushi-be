@@ -23,6 +23,7 @@ import static com.cmdlee.quizsushi.global.exception.ErrorCode.*;
 @RequiredArgsConstructor
 public class Llama3Adapter implements AiModelAdapter {
     public static final String MODEL_NAME = "llama3:8b";
+    public static final String GENERATE = "/api/generate";
 
     private final WebClient webClient;
     private final ObjectMapper objectMapper;
@@ -40,13 +41,13 @@ public class Llama3Adapter implements AiModelAdapter {
     @Override
     public List<GenerateQuizResponse> generateQuiz(GenerateQuizRequest request) {
         String prompt = promptBuilder.build("quiz_generation", request);
-        String targetUrl = instanceRouter.nextUrl();
+        String targetUrl = instanceRouter.nextUrl().trim().concat(GENERATE);
         String aiRaw;
         log.debug("[LLAMA3 DEBUG] targetUrl = {}", targetUrl);
         log.debug("[LLAMA3 DEBUG] prompt = {}", prompt);
         try {
             aiRaw = webClient.post()
-                    .uri(targetUrl + "/api/generate")
+                    .uri(targetUrl)
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(Map.of(
                             "model", MODEL_NAME,
