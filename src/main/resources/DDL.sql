@@ -49,7 +49,7 @@ CREATE TABLE quiz
     question_count INTEGER          NOT NULL DEFAULT 1,                                  -- 문제 수
     category_id    INTEGER          NOT NULL REFERENCES category (id) ON DELETE CASCADE, -- 카테고리 ID
     title          VARCHAR(100)     NOT NULL,                                            -- 제목
-    description    TEXT,                                                                 -- 설명
+    description    TEXT                      DEFAULT '',                                 -- 설명
     rating         FLOAT            NOT NULL DEFAULT 0,                                  -- 평균 평점
     rating_count   INTEGER          NOT NULL DEFAULT 0,                                  -- 평점 수
     view_count     INTEGER          NOT NULL DEFAULT 0,                                  -- 조회수
@@ -67,7 +67,7 @@ CREATE TABLE question
     quiz_id             BIGINT      NOT NULL REFERENCES quiz (id) ON DELETE CASCADE, -- 소속 퀴즈 ID
     no                  INTEGER     NOT NULL,                                        -- 퀴즈 내 번호
     subject             VARCHAR(50),                                                 -- 과목/소분류
-    type                VARCHAR(10) NOT NULL CHECK (type IN ('MULTIPLE', 'SHORTS')),  -- 문제 유형
+    type                VARCHAR(10) NOT NULL,                                        -- 문제 유형
     question_text       TEXT        NOT NULL,                                        -- 문제 본문
     options             TEXT,                                                        -- 객관식 보기 (최대 10개 예상, JSON 문자열)
     correct_answers     TEXT,                                                        -- 객관식 정답 인덱스 (JSON 배열)
