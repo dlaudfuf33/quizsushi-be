@@ -66,12 +66,9 @@ class MemberServiceTest {
     @Mock
     private OAuthUserInfo oAuthUserInfo;
 
-    // No common testMember or testOAuthAccount setup here.
-    // Each test will create and mock its own specific entities.
 
     @BeforeEach
     void setUp() {
-        // Common setup if any, but for now, keep it minimal to avoid UnnecessaryStubbingException
     }
 
     @Test
@@ -79,19 +76,14 @@ class MemberServiceTest {
     void findOrCreateByOAuth_existingMember_returnsMember() {
         // given
         QuizsushiMember mockMember = mock(QuizsushiMember.class);
-        when(mockMember.getId()).thenReturn(1L);
-        when(mockMember.getEmail()).thenReturn("test@example.com");
-        when(mockMember.getNickname()).thenReturn("Test User");
         when(mockMember.isBan()).thenReturn(false);
 
         OAuthAccount mockOAuthAccount = mock(OAuthAccount.class);
         when(mockOAuthAccount.getMember()).thenReturn(mockMember);
 
-        // Stubbing for oAuthUserInfo, as its methods are called within findOrCreateByOAuth
+        // OAuthUserInfo에서 사용하는 값들을 스터빙하여 반환값 설정
         when(oAuthUserInfo.getProvider()).thenReturn(OAuthProvider.GOOGLE);
         when(oAuthUserInfo.getProviderId()).thenReturn("12345");
-        when(oAuthUserInfo.getEmail()).thenReturn("test@example.com");
-        when(oAuthUserInfo.getNickname()).thenReturn("Test User");
 
         when(oauthAccountRepository.findByProviderAndProviderId(any(OAuthProvider.class), anyString()))
                 .thenReturn(Optional.of(mockOAuthAccount));
@@ -111,20 +103,12 @@ class MemberServiceTest {
     void findOrCreateByOAuth_newMember_createsAndReturnsMember() {
         // given
         QuizsushiMember newMemberMock = mock(QuizsushiMember.class);
-        when(newMemberMock.getId()).thenReturn(2L);
-        when(newMemberMock.getEmail()).thenReturn("new@example.com");
-        when(newMemberMock.getNickname()).thenReturn("New User");
-        when(newMemberMock.getProfileImage()).thenReturn("default.webp");
 
         OAuthAccount newAccountMock = mock(OAuthAccount.class);
-        when(newAccountMock.getId()).thenReturn(2L);
-        when(newAccountMock.getMember()).thenReturn(newMemberMock);
 
-        // Stubbing for oAuthUserInfo, as its methods are called within findOrCreateByOAuth
+        // findOrCreateByOAuth 내부에서 호출되는 oAuthUserInfo 메서드에 대한 스터빙
         when(oAuthUserInfo.getProvider()).thenReturn(OAuthProvider.GOOGLE);
         when(oAuthUserInfo.getProviderId()).thenReturn("12345");
-        when(oAuthUserInfo.getEmail()).thenReturn("new@example.com");
-        when(oAuthUserInfo.getNickname()).thenReturn("New User");
 
         when(oauthAccountRepository.findByProviderAndProviderId(any(OAuthProvider.class), anyString()))
                 .thenReturn(Optional.empty());
@@ -137,7 +121,9 @@ class MemberServiceTest {
         // then
         assertThat(createdMember.getEmail()).isEqualTo(oAuthUserInfo.getEmail());
         assertThat(createdMember.getNickname()).isEqualTo(oAuthUserInfo.getNickname());
-        assertThat(createdMember.getProfileImage()).isNotNull(); // Default image should be set
+
+        // 기본 프로필 이미지가 설정되었는지 확인
+        assertThat(createdMember.getProfileImage()).isNotNull();
         verify(oauthAccountRepository, times(1)).findByProviderAndProviderId(oAuthUserInfo.getProvider(), oAuthUserInfo.getProviderId());
         verify(memberRepository, times(1)).save(any(QuizsushiMember.class));
         verify(oauthAccountRepository, times(1)).save(any(OAuthAccount.class));
@@ -259,24 +245,17 @@ class MemberServiceTest {
         int page = 0;
         int size = 10;
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        List<Quiz> quizzes = List.of(
-                mock(Quiz.class)
-        );
-        when(quizzes.get(0).getId()).thenReturn(1L);
-        when(quizzes.get(0).getTitle()).thenReturn("Quiz 1");
-        when(quizzes.get(0).getAuthor()).thenReturn(mockMember);
-        when(quizzes.get(0).getCategory()).thenReturn(mock(Category.class));
-        when(quizzes.get(0).getDescription()).thenReturn("Description 1");
-        when(quizzes.get(0).isUseSubject()).thenReturn(false);
-        when(quizzes.get(0).getMediaKey()).thenReturn("mediaKey1");
-        when(quizzes.get(0).getQuestionCount()).thenReturn(5);
-        when(quizzes.get(0).getRating()).thenReturn(4.5);
-        when(quizzes.get(0).getRatingCount()).thenReturn(10L);
-        when(quizzes.get(0).getViewCount()).thenReturn(100L);
-        when(quizzes.get(0).getSolveCount()).thenReturn(50L);
-        when(quizzes.get(0).getCreatedAt()).thenReturn(LocalDateTime.now());
-        when(quizzes.get(0).getQuestions()).thenReturn(List.of(mock(Question.class), mock(Question.class)));
-        when(quizzes.get(0).getCategory().getTitle()).thenReturn("Test Category");
+        Quiz quiz = mock(Quiz.class);
+        List<Quiz> quizzes = List.of(quiz);
+
+        when(quiz.getId()).thenReturn(1L);
+        when(quiz.getTitle()).thenReturn("Quiz 1");
+        when(quiz.getCategory()).thenReturn(mock(Category.class));
+        when(quiz.getRating()).thenReturn(4.5);
+        when(quiz.getSolveCount()).thenReturn(50L);
+        when(quiz.getCreatedAt()).thenReturn(LocalDateTime.now());
+        when(quiz.getQuestions()).thenReturn(List.of(mock(Question.class), mock(Question.class)));
+        when(quiz.getCategory().getTitle()).thenReturn("Test Category");
         PageImpl<Quiz> quizPage = new PageImpl<>(quizzes, pageable, quizzes.size());
 
         when(memberRepository.findById(anyLong())).thenReturn(Optional.of(mockMember));
@@ -300,20 +279,16 @@ class MemberServiceTest {
     void updateProfile_success() {
         // given
         QuizsushiMember mockMember = mock(QuizsushiMember.class);
-        when(mockMember.getId()).thenReturn(1L);
-        when(mockMember.getNickname()).thenReturn("Original Nickname");
-        when(mockMember.getBirthDate()).thenReturn(LocalDate.of(1990, 1, 1));
-        when(mockMember.getGender()).thenReturn("MALE");
-
+        long memberId = 1L;
         UpdateProfileRequest request = new UpdateProfileRequest("Updated Nickname", "1995-05-05", "FEMALE");
-        when(memberRepository.findById(anyLong())).thenReturn(Optional.of(mockMember));
-        doNothing().when(mockMember).updateProfile(any(UpdateProfileRequest.class));
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
+        doNothing().when(mockMember).updateProfile(request);
 
         // when
-        memberService.updateProfile(mockMember.getId(), request);
+        memberService.updateProfile(memberId, request);
 
         // then
-        verify(memberRepository, times(1)).findById(mockMember.getId());
+        verify(memberRepository, times(1)).findById(memberId);
         verify(mockMember, times(1)).updateProfile(request);
     }
 
