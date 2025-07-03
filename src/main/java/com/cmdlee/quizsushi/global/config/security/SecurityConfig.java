@@ -34,7 +34,10 @@ public class SecurityConfig {
             "/api/auth/**",
             "/api/auth/logout",
             "/api/quizzes/**",
-            "/api/members/**"
+            "/api/members/**",
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html"
     };
 
     private final JwtTokenProvider jwtTokenProvider;
@@ -132,6 +135,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/cmdlee-qs/login").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/cmdlee-qs/admin/**").access(AuthorityAuthorizationManager.hasAnyRole("ROOT", "ADMIN", "MANAGER"))
                         .anyRequest().authenticated()
                 );
