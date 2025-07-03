@@ -66,12 +66,9 @@ class MemberServiceTest {
     @Mock
     private OAuthUserInfo oAuthUserInfo;
 
-    // No common testMember or testOAuthAccount setup here.
-    // Each test will create and mock its own specific entities.
 
     @BeforeEach
     void setUp() {
-        // Common setup if any, but for now, keep it minimal to avoid UnnecessaryStubbingException
     }
 
     @Test
@@ -84,7 +81,7 @@ class MemberServiceTest {
         OAuthAccount mockOAuthAccount = mock(OAuthAccount.class);
         when(mockOAuthAccount.getMember()).thenReturn(mockMember);
 
-        // Stubbing for oAuthUserInfo, as its methods are called within findOrCreateByOAuth
+        // OAuthUserInfo에서 사용하는 값들을 스터빙하여 반환값 설정
         when(oAuthUserInfo.getProvider()).thenReturn(OAuthProvider.GOOGLE);
         when(oAuthUserInfo.getProviderId()).thenReturn("12345");
 
@@ -109,7 +106,7 @@ class MemberServiceTest {
 
         OAuthAccount newAccountMock = mock(OAuthAccount.class);
 
-        // Stubbing for oAuthUserInfo, as its methods are called within findOrCreateByOAuth
+        // findOrCreateByOAuth 내부에서 호출되는 oAuthUserInfo 메서드에 대한 스터빙
         when(oAuthUserInfo.getProvider()).thenReturn(OAuthProvider.GOOGLE);
         when(oAuthUserInfo.getProviderId()).thenReturn("12345");
 
@@ -124,7 +121,9 @@ class MemberServiceTest {
         // then
         assertThat(createdMember.getEmail()).isEqualTo(oAuthUserInfo.getEmail());
         assertThat(createdMember.getNickname()).isEqualTo(oAuthUserInfo.getNickname());
-        assertThat(createdMember.getProfileImage()).isNotNull(); // Default image should be set
+
+        // 기본 프로필 이미지가 설정되었는지 확인
+        assertThat(createdMember.getProfileImage()).isNotNull();
         verify(oauthAccountRepository, times(1)).findByProviderAndProviderId(oAuthUserInfo.getProvider(), oAuthUserInfo.getProviderId());
         verify(memberRepository, times(1)).save(any(QuizsushiMember.class));
         verify(oauthAccountRepository, times(1)).save(any(OAuthAccount.class));
