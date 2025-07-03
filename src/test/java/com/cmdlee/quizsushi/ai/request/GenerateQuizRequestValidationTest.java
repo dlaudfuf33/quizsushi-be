@@ -1,4 +1,4 @@
-package com.cmdlee.quizsushi.ai.service;
+package com.cmdlee.quizsushi.ai.request;
 
 import com.cmdlee.quizsushi.quiz.dto.request.GenerateQuizRequest;
 import jakarta.validation.ConstraintViolation;
