@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -62,6 +63,21 @@ class AiServiceTest {
 
         // then
         assertThat(actualResponse).isEqualTo(expectedResponse);
+        verify(aiModelRouter, times(1)).getAdapter("llama3");
+        verify(aiModelAdapter, times(1)).generateQuiz(request);
+    }
+
+    @Test
+    @DisplayName("AI 어댑터에서 예외 발생 시, 해당 예외를 그대로 던진다")
+    void generateQuizByAI_whenAdapterFails_throwsException() {
+        // given
+        GenerateQuizRequest request = GenerateQuizRequest.builder().build();
+        when(aiModelRouter.getAdapter(anyString())).thenReturn(aiModelAdapter);
+        when(aiModelAdapter.generateQuiz(request)).thenThrow(new RuntimeException("AI Model Server Error"));
+
+        // when & then
+        assertThrows(RuntimeException.class, () -> aiService.generateQuizByAI(request));
+
         verify(aiModelRouter, times(1)).getAdapter("llama3");
         verify(aiModelAdapter, times(1)).generateQuiz(request);
     }

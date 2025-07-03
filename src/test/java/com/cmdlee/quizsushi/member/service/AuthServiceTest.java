@@ -1,6 +1,9 @@
 package com.cmdlee.quizsushi.member.service;
 
 import com.cmdlee.quizsushi.global.auth.jwt.JwtTokenProvider;
+import com.cmdlee.quizsushi.global.auth.jwt.JwtTokenProvider;
+import com.cmdlee.quizsushi.global.exception.ErrorCode;
+import com.cmdlee.quizsushi.global.exception.GlobalException;
 import com.cmdlee.quizsushi.member.domain.model.QuizsushiMember;
 import com.cmdlee.quizsushi.member.dto.OAuthUserInfo;
 import com.cmdlee.quizsushi.member.security.TokenPair;
@@ -14,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -168,6 +172,34 @@ class AuthServiceTest {
         // then
         verify(jwtTokenProvider, times(1)).resolveRefreshToken(request);
         verify(jwtTokenProvider, times(1)).validateToken(refreshToken);
+        verify(refreshTokenService, never()).delete(anyString());
+        verify(response, times(2)).addHeader(eq("Set-Cookie"), anyString());
+    }
+
+    @Test
+    @DisplayName("구글 콜백 처리 중 예외 발생 시 GlobalException을 던진다")
+    void handleGoogleCallback_whenServiceFails_throwsException() {
+        // given
+        String code = "test_code";
+        when(googleOAuthService.handleCallback(code)).thenThrow(new RuntimeException("Google API Error"));
+
+        // when & then
+        assertThrows(RuntimeException.class, () -> authService.handleGoogleCallback(code, request));
+
+        verify(memberService, never()).findOrCreateByOAuth(any());
+        verify(jwtTokenProvider, never()).createToken(anyString());
+    }
+
+    @Test
+    @DisplayName("리프레시 토큰이 없을 때 로그아웃 요청 시, 토큰 삭제 없이 쿠키만 만료시킨다")
+    void logout_noRefreshToken() {
+        // given
+        when(jwtTokenProvider.resolveRefreshToken(request)).thenReturn(null);
+
+        // when
+        authService.logout(request, response);
+
+        // then
         verify(refreshTokenService, never()).delete(anyString());
         verify(response, times(2)).addHeader(eq("Set-Cookie"), anyString());
     }
