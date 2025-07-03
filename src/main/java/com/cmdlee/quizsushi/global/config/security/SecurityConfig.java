@@ -6,6 +6,7 @@ import com.cmdlee.quizsushi.global.auth.jwt.JwtTokenProvider;
 import com.cmdlee.quizsushi.member.service.RefreshTokenService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -34,7 +35,7 @@ public class SecurityConfig {
             "/api/auth/**",
             "/api/auth/logout",
             "/api/quizzes/**",
-            "/api/members/**"
+            "/api/members/**",
     };
 
     private final JwtTokenProvider jwtTokenProvider;
@@ -132,11 +133,21 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/cmdlee-qs/login").permitAll()
-                        .requestMatchers("/cmdlee-qs/admin/**").access(AuthorityAuthorizationManager.hasAnyRole("ROOT", "ADMIN", "MANAGER"))
+                        .requestMatchers("/cmdlee-qs/admin/**").access(AuthorityAuthorizationManager
+                                .hasAnyRole("ROOT", "ADMIN", "MANAGER", "VIEWER"))
                         .anyRequest().authenticated()
                 );
         return http.build();
     }
 
+    @Bean
+    @Profile({"local", "dev"})
+    public SecurityFilterChain swaggerSecurity(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
 
+        return http.build();
+    }
 }
