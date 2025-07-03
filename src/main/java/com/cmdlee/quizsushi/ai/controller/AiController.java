@@ -8,6 +8,7 @@ import com.cmdlee.quizsushi.global.util.RejectBot;
 import com.cmdlee.quizsushi.quiz.dto.request.GenerateQuizRequest;
 import com.cmdlee.quizsushi.quiz.dto.response.GenerateQuizResponse;
 import com.cmdlee.quizsushi.ai.service.AiService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -28,7 +29,7 @@ public class AiController {
 
     @PostMapping("/quizzes/questions")
     public ResponseEntity<CommonApiResponse<List<GenerateQuizResponse>>> generateQuizzes(
-            @RequestBody GenerateQuizRequest request,
+            @Valid @RequestBody GenerateQuizRequest request,
             @AuthenticationPrincipal CustomMemberDetails memberDetails) {
         getAuthenticatedMemberId(memberDetails);
         List<GenerateQuizResponse> generateQuizByAI = aiService.generateQuizByAI(request);
