@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
@@ -20,6 +21,7 @@ import java.util.Map;
 import static com.cmdlee.quizsushi.global.exception.ErrorCode.*;
 
 @Slf4j
+@Component
 @RequiredArgsConstructor
 public class Llama3Adapter implements AiModelAdapter {
     public static final String MODEL_NAME = "llama3:8b";
@@ -57,7 +59,7 @@ public class Llama3Adapter implements AiModelAdapter {
                     .retrieve()
                     .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
                             clientResponse -> clientResponse.bodyToMono(String.class)
-                                    .map(body -> new RuntimeException("AI 호출 실패 - 상태: " + clientResponse.statusCode() + ", 응답: " + body))
+                                    .map(body -> new GlobalException(ErrorCode.AI_COMMUNICATION_FAILED))
                     )
                     .bodyToMono(String.class)
                     .block();
