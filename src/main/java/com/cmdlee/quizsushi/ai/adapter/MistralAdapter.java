@@ -12,14 +12,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
 import java.util.Map;
 
-import static com.cmdlee.quizsushi.global.exception.ErrorCode.*;
+import static com.cmdlee.quizsushi.global.exception.ErrorCode.AI_COMMUNICATION_FAILED;
+import static com.cmdlee.quizsushi.global.exception.ErrorCode.AI_EMPTY_RESPONSE;
 
 @Slf4j
+@Component
 @RequiredArgsConstructor
 public class MistralAdapter implements AiModelAdapter {
     public static final String MODEL_NAME = "mistarl";
