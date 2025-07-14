@@ -70,7 +70,7 @@ public class QuizsushiMember extends TimeBaseEntity {
     }
 
     public void updateProfile(UpdateProfileRequest request) {
-        this.nickname = request.getNickName();
+        this.nickname = request.getNickname();
         this.birthDate = request.getLocalDateBirth();
         this.gender = request.getGender();
     }
