@@ -19,13 +19,13 @@ public enum ErrorCode {
     UNSUPPORTED_REPORT_TARGET("V009", "지원하지 않는 신고 유형입니다.", HttpStatus.BAD_REQUEST),
     UNSUPPORTED_REPORT_STATUS("V010", "지원하지 않는 신고 상태입니다.", HttpStatus.BAD_REQUEST),
     WRONG_DATE_RANGE("V0011", "종료일이 시작일보다 빠를 수 없습니다.", HttpStatus.BAD_REQUEST),
-    INVALID_REQUEST("C001", "잘못된 요청입니다.", HttpStatus.BAD_REQUEST),
+    INVALID_REQUEST("V012", "잘못된 요청입니다.", HttpStatus.BAD_REQUEST),
 
     // === [A] Auth Errors (401/403) ===
     USER_ID_REQUIRED("A001", "userId 정보가 필요합니다.", HttpStatus.BAD_REQUEST),
     UNAUTHORIZED("A002", "인증이 필요합니다.", HttpStatus.UNAUTHORIZED),
     FORBIDDEN_ACCESS("A003", "접근 권한이 없습니다.", HttpStatus.FORBIDDEN),
-    INVALID_PASSWORD("A004", "비밀번호가 일치하지 않습니다.", HttpStatus.FORBIDDEN),
+    INVALID_PASSWORD("A004", "비밀번호가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED),
     REFRESH_TOKEN_MISSING("A005", "리프레시 토큰이 존재하지 않습니다.", HttpStatus.UNAUTHORIZED),
     INVALID_REFRESH_TOKEN("A006", "유효하지 않은 리프레시 토큰입니다.", HttpStatus.UNAUTHORIZED),
     TOKEN_CLIENT_MISMATCH("A007", "접속 환경이 일치하지 않습니다.", HttpStatus.UNAUTHORIZED),
@@ -48,7 +48,7 @@ public enum ErrorCode {
     FILE_UPLOAD_FAILED("S004", "파일 업로드에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     URL_PARSE_FAILED("S005", "URL 파싱에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     INTERNAL_JSON_ERROR("S006", "JSON 처리 중 내부 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
-    CHALLENGE_DISABLED("C001", "현재 챌린지 기능이 비활성화되어 있습니다.", HttpStatus.SERVICE_UNAVAILABLE),
+    CHALLENGE_DISABLED("CH001", "현재 챌린지 기능이 비활성화되어 있습니다.", HttpStatus.SERVICE_UNAVAILABLE),
 
     // === [R] Redis 관련 ===
     REDIS_SERIALIZATION_FAILED("R001", "Redis 직렬화에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
@@ -65,7 +65,7 @@ public enum ErrorCode {
     AI_RESPONSE_PARSE_FAILED("AI004", "AI 응답 파싱에 실패했습니다.", HttpStatus.BAD_REQUEST),
     AI_COMMUNICATION_FAILED("AI005", "AI 서버와의 통신에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     AI_MODEL_NOT_FOUND("AI006", "잘못된 AI 모델입니다.", HttpStatus.BAD_REQUEST),
-    AI_JSON_BLOCK_NOT_FOUND("AI007", "```json ... ``` 블록을 찾을 수 없습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    AI_JSON_BLOCK_NOT_FOUND("AI007", "```json ... ``` 블록을 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),
 
     // === [O] OAuth 관련 ===
     OAUTH_REDIRECT_FAILED("O001", "OAuth 리다이렉트에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
