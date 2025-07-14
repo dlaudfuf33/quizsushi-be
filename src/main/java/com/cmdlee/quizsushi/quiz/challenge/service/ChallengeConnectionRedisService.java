@@ -38,7 +38,8 @@ public class ChallengeConnectionRedisService {
     }
 
     public long getOnlineCount(String sessionId) {
-        return redisTemplate.opsForSet().size(getSessionKey(sessionId));
+        Long count = redisTemplate.opsForSet().size(getSessionKey(sessionId));
+        return count != null ? count : 0;
     }
 
     public String getSessionIdOf(String memberId) {
