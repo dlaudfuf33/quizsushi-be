@@ -8,7 +8,7 @@ import java.time.LocalDate;
 @Getter
 @AllArgsConstructor
 public class UpdateProfileRequest {
-    private String nickName;
+    private String nickname;
     private String birth;
     private String gender;
 
