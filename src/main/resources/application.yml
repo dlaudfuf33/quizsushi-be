@@ -1,6 +1,17 @@
 spring:
   profiles:
     active: dev
+  ai:
+    openai:
+      api-key: ${gpt-api-key}
+    vertex:
+      gemini:
+        project-id: ${project-id}
+        location: ${location}
+        credentials-path: ${credentials-path}
+        api-key: ${gemini-api-key}
+    tool-calling:
+      enabled: false
   application:
     name: quizsushi-be
   datasource:
@@ -33,6 +44,7 @@ spring:
     multipart:
       max-file-size: 200MB
       max-request-size: 200MB
+
 
 admin:
   root:
@@ -71,10 +83,13 @@ minio:
   secret-key: ${MINIO_SECRET_KEY}
   bucket: ${MINIO_BUCKET}
 
+
 ai:
   urls: ${AI_URLS:}
   stream: ${AI_STREAM}
 
+challenge:
+  max-sessions: ${MAX_SESSIONS}
 
 management:
   endpoints:
