@@ -13,7 +13,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class AiService {
+public class OllamaAiService {
+
     private final AiModelRouter aiModelRouter;
 
     public List<GenerateQuizResponse> generateQuizByAI(GenerateQuizRequest request) {
