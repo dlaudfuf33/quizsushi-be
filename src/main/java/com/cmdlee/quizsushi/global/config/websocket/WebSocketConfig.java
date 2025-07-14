@@ -24,14 +24,14 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/topic"); // 클라이언트 수신 경로
-        registry.setApplicationDestinationPrefixes("/app"); // 클라이언트 송신 경로
+        registry.enableSimpleBroker("/topic");
+        registry.setApplicationDestinationPrefixes("/app");
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws/challenge")
                 .setAllowedOriginPatterns("https://quizsushi.cmdlee.dev")
-                .withSockJS(); // SockJS fallback
+                .withSockJS();
     }
 }
