@@ -2,14 +2,12 @@ spring:
   profiles:
     active: dev
   ai:
-    openai:
-      api-key: ${gpt-api-key}
     vertex:
-      gemini:
-        project-id: ${project-id}
-        location: ${location}
-        credentials-path: ${credentials-path}
-        api-key: ${gemini-api-key}
+      ai:
+       gemini:
+          project-id: ${project-id}
+          location: ${location}
+          credentials-path: ${credentials-path}
     tool-calling:
       enabled: false
   application:
