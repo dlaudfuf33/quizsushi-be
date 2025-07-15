@@ -91,7 +91,7 @@ public class QuizService {
         Quiz quiz = quizRepository.findById(request.getId()).orElseThrow(() -> new GlobalException(ErrorCode.ENTITY_NOT_FOUND));
 
         if (quiz.getAuthor().getId() != memberId) {
-            throw new GlobalException(ErrorCode.WRONG_MEMBER);
+            throw new GlobalException(ErrorCode.MEMBER_MISMATCH);
         }
 
         quiz.updateMetadata(request.getDescription(), request.isUseSubject(), request.getQuestions().size());
@@ -112,7 +112,7 @@ public class QuizService {
     public void deleteQuiz(Long quizId, long memberId) {
         Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new GlobalException(ErrorCode.ENTITY_NOT_FOUND));
         if (quiz.getAuthor().getId() != memberId) {
-            throw new GlobalException(ErrorCode.WRONG_MEMBER);
+            throw new GlobalException(ErrorCode.MEMBER_MISMATCH);
         }
         minioService.deleteAllWithPrefix(quiz.getMediaKey());
         quizRepository.delete(quiz);

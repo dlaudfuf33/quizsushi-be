@@ -16,7 +16,7 @@ public class QuizPromptBuilder implements PromptBuilder<GenerateQuizRequest> {
     @Override
     public String build(String taskName, GenerateQuizRequest request) {
 
-        String template = templateProvider.getTemplate("llama3", taskName);
+        String template = templateProvider.getTemplate(taskName);
         Map<String, String> map = Map.of(
                 "TOPIC", request.getTopic(),
                 "DESCRIPTION", request.getDescription(),

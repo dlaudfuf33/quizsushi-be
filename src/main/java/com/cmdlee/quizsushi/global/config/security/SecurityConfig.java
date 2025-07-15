@@ -91,7 +91,7 @@ public class SecurityConfig {
     public SecurityFilterChain userSecurity(HttpSecurity http) throws Exception {
         http
                 .cors(Customizer.withDefaults())
-                .securityMatcher("/api/**")
+                .securityMatcher("/api/**", "/ws/**")
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth

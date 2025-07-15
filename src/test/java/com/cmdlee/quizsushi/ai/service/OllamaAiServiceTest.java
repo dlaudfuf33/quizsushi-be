@@ -22,10 +22,10 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class AiServiceTest {
+class OllamaAiServiceTest {
 
     @InjectMocks
-    private AiService aiService;
+    private OllamaAiService ollamaAiService;
 
     @Mock
     private AiModelRouter aiModelRouter;
@@ -59,7 +59,7 @@ class AiServiceTest {
         when(aiModelAdapter.generateQuiz(any(GenerateQuizRequest.class))).thenReturn(expectedResponse);
 
         // when
-        List<GenerateQuizResponse> actualResponse = aiService.generateQuizByAI(request);
+        List<GenerateQuizResponse> actualResponse = ollamaAiService.generateQuizByAI(request);
 
         // then
         assertThat(actualResponse).isEqualTo(expectedResponse);
@@ -76,7 +76,7 @@ class AiServiceTest {
         when(aiModelAdapter.generateQuiz(request)).thenThrow(new RuntimeException("AI Model Server Error"));
 
         // when & then
-        assertThrows(RuntimeException.class, () -> aiService.generateQuizByAI(request));
+        assertThrows(RuntimeException.class, () -> ollamaAiService.generateQuizByAI(request));
 
         verify(aiModelRouter, times(1)).getAdapter("llama3");
         verify(aiModelAdapter, times(1)).generateQuiz(request);

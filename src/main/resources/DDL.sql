@@ -155,3 +155,12 @@ CREATE TABLE report
     created_at  TIMESTAMP          DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE SEQUENCE IF NOT EXISTS challenge_toggle_seq START 1 INCREMENT 1;
+CREATE TABLE challenge_toggle
+(
+    id         BIGINT PRIMARY KEY DEFAULT nextval('challenge_toggle_seq'),
+    is_enabled BOOLEAN   NOT NULL DEFAULT FALSE,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_by BIGINT REFERENCES admin_member (id)
+)

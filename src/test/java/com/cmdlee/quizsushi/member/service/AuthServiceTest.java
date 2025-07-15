@@ -1,9 +1,6 @@
 package com.cmdlee.quizsushi.member.service;
 
 import com.cmdlee.quizsushi.global.auth.jwt.JwtTokenProvider;
-import com.cmdlee.quizsushi.global.auth.jwt.JwtTokenProvider;
-import com.cmdlee.quizsushi.global.exception.ErrorCode;
-import com.cmdlee.quizsushi.global.exception.GlobalException;
 import com.cmdlee.quizsushi.member.domain.model.QuizsushiMember;
 import com.cmdlee.quizsushi.member.dto.OAuthUserInfo;
 import com.cmdlee.quizsushi.member.security.TokenPair;
@@ -76,7 +73,6 @@ class AuthServiceTest {
         // given
         String code = "test_code";
         String accessToken = "test_access_token";
-        String refreshToken = "test_refresh_token";
 
         when(googleOAuthService.handleCallback(code)).thenReturn(oAuthUserInfo);
         when(memberService.findOrCreateByOAuth(oAuthUserInfo)).thenReturn(member);

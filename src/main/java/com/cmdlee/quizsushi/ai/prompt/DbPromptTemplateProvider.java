@@ -13,7 +13,7 @@ public class DbPromptTemplateProvider implements PromptTemplateProvider {
     private final AiPromptRepository promptRepository;
 
     @Override
-    public String getTemplate(String modelName, String taskName) {
+    public String getTemplate(String taskName) {
         return promptRepository.findFirstByNameOrderByUpdatedAtDesc(taskName)
                 .orElseThrow(() -> new GlobalException(ErrorCode.PROMPT_NOT_FOUND))
                 .getTemplate();

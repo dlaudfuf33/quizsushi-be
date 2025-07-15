@@ -37,6 +37,11 @@ public class MemberService {
     private final MemberQuizSolveLogRepository quizSolveLogRepository;
     private final QuizRepository quizRepository;
 
+    public QuizsushiMember findMemberById(long memberId) {
+        return memberRepository.findById(memberId).orElseThrow(
+                () -> new GlobalException(ErrorCode.ENTITY_NOT_FOUND));
+    }
+
     @Transactional
     public QuizsushiMember findOrCreateByOAuth(OAuthUserInfo userInfo) {
         int index = ThreadLocalRandom.current().nextInt(DEFAULT_PROFILE_IMAGES.size());

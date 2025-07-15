@@ -1,4 +1,4 @@
-package com.cmdlee.quizsushi.global.config;
+package com.cmdlee.quizsushi.global.config.webclient;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

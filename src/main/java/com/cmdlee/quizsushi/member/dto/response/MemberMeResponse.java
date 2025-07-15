@@ -14,14 +14,16 @@ import lombok.Getter;
 public class MemberMeResponse implements MeResponse {
     private Long id;
     private String email;
-    private String nickName;
+    private String nickname;
+    private String avatar;
     private PlanTier planTier;
 
     public static MemberMeResponse from(QuizsushiMember member) {
         return MemberMeResponse.builder()
                 .id(member.getId())
                 .email(member.getEmail())
-                .nickName(member.getNickname())
+                .nickname(member.getNickname())
+                .avatar(member.getProfileImage())
                 .planTier(member.getPlanTier())
                 .build();
     }

@@ -14,12 +14,14 @@ import com.cmdlee.quizsushi.global.exception.ErrorCode;
 import com.cmdlee.quizsushi.global.exception.GlobalException;
 import com.cmdlee.quizsushi.global.util.RejectBot;
 import com.cmdlee.quizsushi.member.dto.response.MeResponse;
+import com.cmdlee.quizsushi.quiz.challenge.service.ChallengeToggleService;
 import com.cmdlee.quizsushi.report.service.ReportService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,6 +37,7 @@ public class AdminController {
 
     private final AdminService adminService;
     private final ReportService reportService;
+    private final ChallengeToggleService challengeToggleService;
 
     @GetMapping("/me")
     public ResponseEntity<CommonApiResponse<MeResponse>> getMe(
@@ -150,4 +153,21 @@ public class AdminController {
         adminService.deleteQuiz(id);
         return ResponseEntity.ok(CommonApiResponse.ok(null, "퀴즈 삭제 성공"));
     }
+
+    @PreAuthorize("hasRole('ROLE_VIEWER')")
+    @GetMapping("/challenge/toggle")
+    public ResponseEntity<CommonApiResponse<Boolean>> getToggleStatus() {
+        boolean status = challengeToggleService.getCurrentStatus();
+        return ResponseEntity.ok(CommonApiResponse.ok(status, "현재 챌린지 상태 조회 성공"));
+    }
+
+    @PreAuthorize("hasRole('ROLE_ROOT')")
+    @PostMapping("/challenge/toggle")
+    public ResponseEntity<CommonApiResponse<Void>> toggleChallenge(@AuthenticationPrincipal CustomAdminDetails adminDetails) {
+        Long adminId = adminDetails.getId();
+        challengeToggleService.toggleChallenge(adminId);
+        return ResponseEntity.ok(CommonApiResponse.ok(null, "챌린지 상태가 변경되었습니다."));
+    }
+
+
 }
