@@ -1,7 +1,5 @@
 package com.cmdlee.quizsushi.quiz.challenge.dto.response;
 
-import com.cmdlee.quizsushi.quiz.challenge.model.AiReaction;
-import com.cmdlee.quizsushi.quiz.challenge.model.ChallengeQuiz;
 import com.cmdlee.quizsushi.quiz.challenge.model.ChallengeSession;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +11,6 @@ import java.time.Instant;
 public class ChallengeQuizResponse {
     private String question;
     private String explain;
-    private AiReaction aiReaction;
 
     private Instant givenAt;
     private int limitTime;

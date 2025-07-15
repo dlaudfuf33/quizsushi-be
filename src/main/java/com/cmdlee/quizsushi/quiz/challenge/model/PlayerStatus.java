@@ -55,10 +55,10 @@ public class PlayerStatus implements Serializable {
     }
 
     public int increaseScoreWithCombo(int baseScore) {
-        combo++;
         double multiplier = getComboMultiplier();
         int earned = (int) Math.round(baseScore * multiplier);
         this.score += earned;
+        combo++;
         return earned;
     }
 
