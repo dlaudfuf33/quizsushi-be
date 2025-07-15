@@ -111,7 +111,7 @@ public class GeminiAiService {
     }
 
     private String cleanMarkdown(String input) {
-        return input.replace("\\\\n", "\n").replace("\\n", "\n").replace("\\", "");
+        return input.replace("\\\\n", "\n").replace("\\\\", "");
     }
 
 }
