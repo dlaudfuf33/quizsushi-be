@@ -7,18 +7,15 @@ import com.cmdlee.quizsushi.member.domain.model.QuizsushiMember;
 import com.cmdlee.quizsushi.member.domain.model.enums.OAuthProvider;
 import com.cmdlee.quizsushi.member.dto.OAuthUserInfo;
 import com.cmdlee.quizsushi.member.dto.request.UpdateProfileRequest;
-import com.cmdlee.quizsushi.member.dto.response.MeResponse;
-import com.cmdlee.quizsushi.member.dto.response.MemberProfileResponse;
-import com.cmdlee.quizsushi.member.dto.response.SolvedQuizPageResponse;
-import com.cmdlee.quizsushi.member.dto.response.CreatedQuizPageResponse;
-import com.cmdlee.quizsushi.member.dto.response.MemberMeResponse;
+import com.cmdlee.quizsushi.member.dto.response.*;
 import com.cmdlee.quizsushi.member.repository.MemberRepository;
 import com.cmdlee.quizsushi.member.repository.OAuthAccountRepository;
+import com.cmdlee.quizsushi.quiz.domain.model.Category;
 import com.cmdlee.quizsushi.quiz.domain.model.MemberQuizSolveLog;
+import com.cmdlee.quizsushi.quiz.domain.model.Question;
 import com.cmdlee.quizsushi.quiz.domain.model.Quiz;
 import com.cmdlee.quizsushi.quiz.repository.MemberQuizSolveLogRepository;
 import com.cmdlee.quizsushi.quiz.repository.QuizRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,19 +27,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import com.cmdlee.quizsushi.quiz.domain.model.Category;
-import com.cmdlee.quizsushi.quiz.domain.model.Question;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.anyList;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -65,11 +57,6 @@ class MemberServiceTest {
 
     @Mock
     private OAuthUserInfo oAuthUserInfo;
-
-
-    @BeforeEach
-    void setUp() {
-    }
 
     @Test
     @DisplayName("기존 OAuth 계정으로 회원 찾기 또는 생성 시 기존 회원을 반환한다")
@@ -145,7 +132,7 @@ class MemberServiceTest {
 
         // then
         assertThat(((MemberMeResponse) meResponse).getEmail()).isEqualTo(mockMember.getEmail());
-        assertThat(((MemberMeResponse) meResponse).getNickName()).isEqualTo(mockMember.getNickname());
+        assertThat(((MemberMeResponse) meResponse).getNickname()).isEqualTo(mockMember.getNickname());
         verify(memberRepository, times(1)).findById(mockMember.getId());
     }
 
@@ -342,7 +329,8 @@ class MemberServiceTest {
         when(memberRepository.findById(anyLong())).thenReturn(Optional.of(mockMember));
 
         // when & then
-        GlobalException exception = assertThrows(GlobalException.class, () -> memberService.deleteMe(mockMember.getId()));
+        Long memberId = mockMember.getId();
+        GlobalException exception = assertThrows(GlobalException.class, () -> memberService.deleteMe(memberId));
         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.MEMBER_ALREADY_DELETED);
         verify(memberRepository, times(1)).findById(mockMember.getId());
         verify(mockMember, times(1)).isDeleted();
