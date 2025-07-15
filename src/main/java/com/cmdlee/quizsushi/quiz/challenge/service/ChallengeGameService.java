@@ -217,11 +217,6 @@ public class ChallengeGameService {
         session.sessionOver();
         sendGameState(session);
 
-        // 챌린지 참여 횟수 증가
-        session.getPlayers().keySet().forEach(memberId -> {
-            memberService.findMemberById(Long.parseLong(memberId)).increaseTotalChallengeSessionsPlayed();
-        });
-
         deleteSession(session.getSessionId());
     }
 
