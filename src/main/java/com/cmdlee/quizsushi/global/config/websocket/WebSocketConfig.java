@@ -31,7 +31,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws/challenge")
-                .setAllowedOriginPatterns("https://quizsushi.cmdlee.com")
+                .setAllowedOrigins("https://quizsushi.cmdlee.dev", "https://quizsushi.cmdlee.com")
                 .withSockJS();
     }
 }
