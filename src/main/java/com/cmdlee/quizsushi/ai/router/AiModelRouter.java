@@ -14,6 +14,7 @@ public class AiModelRouter {
     private final Map<String, AiModelAdapter> adapterMap;
 
     public AiModelAdapter getAdapter(String modelName) {
+
         AiModelAdapter adapter = adapterMap.get(modelName);
         if (adapter == null) {
             throw new GlobalException(ErrorCode.AI_MODEL_NOT_FOUND);
