@@ -140,17 +140,3 @@ QuizSushi는 AI 모델을 사용하는 목적에 따라 두 가지 다른 아키
 | `GET` | `/cmdlee-qs/dashboard/data` | (관리자) 대시보드 통계 데이터 조회 |
 
 <br>
-
-## 📝 요청 예시
-
-**AI 퀴즈 생성 요청**
-
-```json
-{
-  "topic": "자바스크립트",
-  "description": "ES6의 주요 문법과 비동기 처리에 대한 문제입니다.",
-  "count": 5,
-  "difficulty": "중급",
-  "questionType": "객관식"
-}
-```
