@@ -1,6 +1,7 @@
 # 🍣 QuizSushi - Backend
 
-**QuizSushi**는 사용자가 직접 퀴즈를 만들고 풀며 지식을 나누는 플랫폼입니다. AI를 통해 문제를 생성하거나, 실시간 서바이벌 퀴즈 챌린지에 참여하며 지식을 쌓고 다른 사람들과 경쟁할 수 있습니다.
+**QuizSushi**는 사용자가 직접 퀴즈를 만들고 풀며 지식을 나누는 플랫폼입니다. AI를 통해 문제를 생성하거나, 실시간 서바이벌 퀴즈 챌린지에 참여하며 지식을 쌓고 다른 사람들과 경쟁할 수 있습니다.  
+
 <img width="800" height="650" alt="main" src="https://github.com/user-attachments/assets/336586b3-5ab2-41c4-b246-87ff26d2adda" />
 
 
