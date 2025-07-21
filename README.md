@@ -1,7 +1,7 @@
 # 🍣 QuizSushi - Backend
 
 **QuizSushi**는 사용자가 직접 퀴즈를 만들고 풀며 지식을 나누는 플랫폼입니다. AI를 통해 문제를 생성하거나, 실시간 서바이벌 퀴즈 챌린지에 참여하며 지식을 쌓고 다른 사람들과 경쟁할 수 있습니다.
-<img width="1194" height="746" alt="main" src="https://github.com/user-attachments/assets/336586b3-5ab2-41c4-b246-87ff26d2adda" />
+<img width="800" height="650" alt="main" src="https://github.com/user-attachments/assets/336586b3-5ab2-41c4-b246-87ff26d2adda" />
 
 
 👉 **실서비스**: [https://quizsushi.cmdlee.com/](https://quizsushi.cmdlee.com/)
@@ -15,13 +15,13 @@
 <table>
   <tr>
     <td align="center">
-      <img width="100%" src="https://github.com/user-attachments/assets/2246adf1-c7b1-4de6-b0fc-e3284d30fc78" alt="스크린샷1"/>
+      <img width="300" src="https://github.com/user-attachments/assets/2246adf1-c7b1-4de6-b0fc-e3284d30fc78" alt="스크린샷1"/>
     </td>
     <td align="center">
-      <img width="100%" src="https://github.com/user-attachments/assets/ae11b79f-e135-4997-8b8f-13975bc76e82" alt="스크린샷2"/>
+      <img width="300" src="https://github.com/user-attachments/assets/ae11b79f-e135-4997-8b8f-13975bc76e82" alt="스크린샷2"/>
     </td>
     <td align="center">
-      <img width="100%" src="https://github.com/user-attachments/assets/18af0133-bf05-4e68-a35f-27991a610d9a" alt="스크린샷3"/>
+      <img width="300" src="https://github.com/user-attachments/assets/18af0133-bf05-4e68-a35f-27991a610d9a" alt="스크린샷3"/>
     </td>
   </tr>
 </table>
@@ -30,31 +30,29 @@
 <table>
   <tr>
     <td align="center">
-      <img width="849" height="872" alt="스크린샷 2025-07-21 오후 1 49 44" src="https://github.com/user-attachments/assets/f9e7c304-a6f2-4d65-9988-cbe6b1d25b4e" />
+      <img width="300" src="https://github.com/user-attachments/assets/f9e7c304-a6f2-4d65-9988-cbe6b1d25b4e" />
     </td>
     <td align="center">
-      <img width="476" height="769" alt="스크린샷 2025-07-21 오후 1 39 42" src="https://github.com/user-attachments/assets/2a3b885b-1739-4ca4-900b-42e9b8ad2067" />
+      <img width="300" src="https://github.com/user-attachments/assets/2a3b885b-1739-4ca4-900b-42e9b8ad2067" />
     </td>
   </tr>
 </table>
 <br>
 
-
-
-
 <table>
   <tr>
     <td align="center">
-      <img width="795" height="698" alt="스크린샷 2025-07-21 오후 1 51 06" src="https://github.com/user-attachments/assets/f89a5b98-4a18-44a5-b252-153d310d369f" />
+      <img width="300" src="https://github.com/user-attachments/assets/f89a5b98-4a18-44a5-b252-153d310d369f" />
     </td>
     <td align="center">
-      <img width="1886" height="934" alt="스크린샷 2025-07-21 오후 1 47 07" src="https://github.com/user-attachments/assets/14ffec11-08e6-4ac4-bc27-ff773065223d" />      
+      <img width="300" src="https://github.com/user-attachments/assets/14ffec11-08e6-4ac4-bc27-ff773065223d" />
     </td>
     <td align="center">
-      <img width="1903" height="909" alt="스크린샷 2025-07-21 오후 1 46 55" src="https://github.com/user-attachments/assets/74d5092b-a444-4f7b-b77f-a1688874e740" />
+      <img width="300" src="https://github.com/user-attachments/assets/74d5092b-a444-4f7b-b77f-a1688874e740" />
     </td>
   </tr>
 </table>
+
 <br>
 
 ## ✨ 주요 기능
