@@ -12,7 +12,19 @@
 
 -   **프로젝트명**: QuizSushi
 -   **목적**: 사용자들이 다양한 주제의 퀴즈를 생성 및 공유하고, 실시간 퀴즈 챌린지에 참여하며 경쟁하는 지식 엔터테인먼트 플랫폼 제공
-
+<table>
+  <tr>
+    <td align="center">
+      <img width="100%" src="https://github.com/user-attachments/assets/2246adf1-c7b1-4de6-b0fc-e3284d30fc78" alt="스크린샷1"/>
+    </td>
+    <td align="center">
+      <img width="100%" src="https://github.com/user-attachments/assets/ae11b79f-e135-4997-8b8f-13975bc76e82" alt="스크린샷2"/>
+    </td>
+    <td align="center">
+      <img width="100%" src="https://github.com/user-attachments/assets/18af0133-bf05-4e68-a35f-27991a610d9a" alt="스크린샷3"/>
+    </td>
+  </tr>
+</table>
 <br>
 
 ## ✨ 주요 기능
