@@ -1,6 +1,8 @@
 # 🍣 QuizSushi - Backend
 
 **QuizSushi**는 사용자가 직접 퀴즈를 만들고 풀며 지식을 나누는 플랫폼입니다. AI를 통해 문제를 생성하거나, 실시간 서바이벌 퀴즈 챌린지에 참여하며 지식을 쌓고 다른 사람들과 경쟁할 수 있습니다.
+<img width="1194" height="746" alt="main" src="https://github.com/user-attachments/assets/336586b3-5ab2-41c4-b246-87ff26d2adda" />
+
 
 👉 **실서비스**: [https://quizsushi.cmdlee.com/](https://quizsushi.cmdlee.com/)
 
@@ -10,7 +12,19 @@
 
 -   **프로젝트명**: QuizSushi
 -   **목적**: 사용자들이 다양한 주제의 퀴즈를 생성 및 공유하고, 실시간 퀴즈 챌린지에 참여하며 경쟁하는 지식 엔터테인먼트 플랫폼 제공
-
+<table>
+  <tr>
+    <td align="center">
+      <img width="100%" src="https://github.com/user-attachments/assets/2246adf1-c7b1-4de6-b0fc-e3284d30fc78" alt="스크린샷1"/>
+    </td>
+    <td align="center">
+      <img width="100%" src="https://github.com/user-attachments/assets/ae11b79f-e135-4997-8b8f-13975bc76e82" alt="스크린샷2"/>
+    </td>
+    <td align="center">
+      <img width="100%" src="https://github.com/user-attachments/assets/18af0133-bf05-4e68-a35f-27991a610d9a" alt="스크린샷3"/>
+    </td>
+  </tr>
+</table>
 <br>
 
 ## ✨ 주요 기능
@@ -140,17 +154,3 @@ QuizSushi는 AI 모델을 사용하는 목적에 따라 두 가지 다른 아키
 | `GET` | `/cmdlee-qs/dashboard/data` | (관리자) 대시보드 통계 데이터 조회 |
 
 <br>
-
-## 📝 요청 예시
-
-**AI 퀴즈 생성 요청**
-
-```json
-{
-  "topic": "자바스크립트",
-  "description": "ES6의 주요 문법과 비동기 처리에 대한 문제입니다.",
-  "count": 5,
-  "difficulty": "중급",
-  "questionType": "객관식"
-}
-```
