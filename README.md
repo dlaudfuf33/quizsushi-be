@@ -27,6 +27,36 @@
 </table>
 <br>
 
+<table>
+  <tr>
+    <td align="center">
+      <img width="849" height="872" alt="스크린샷 2025-07-21 오후 1 49 44" src="https://github.com/user-attachments/assets/f9e7c304-a6f2-4d65-9988-cbe6b1d25b4e" />
+    </td>
+    <td align="center">
+      <img width="1886" height="934" alt="스크린샷 2025-07-21 오후 1 47 07" src="https://github.com/user-attachments/assets/14ffec11-08e6-4ac4-bc27-ff773065223d" />      
+    </td>
+  </tr>
+</table>
+<br>
+
+
+
+
+<table>
+  <tr>
+    <td align="center">
+      <img width="795" height="698" alt="스크린샷 2025-07-21 오후 1 51 06" src="https://github.com/user-attachments/assets/f89a5b98-4a18-44a5-b252-153d310d369f" />
+    </td>
+    <td align="center">
+      <img width="476" height="769" alt="스크린샷 2025-07-21 오후 1 39 42" src="https://github.com/user-attachments/assets/2a3b885b-1739-4ca4-900b-42e9b8ad2067" />
+    </td>
+    <td align="center">
+      <img width="1903" height="909" alt="스크린샷 2025-07-21 오후 1 46 55" src="https://github.com/user-attachments/assets/74d5092b-a444-4f7b-b77f-a1688874e740" />
+    </td>
+  </tr>
+</table>
+<br>
+
 ## ✨ 주요 기능
 
 -   **AI 퀴즈 생성**: 텍스트만으로 간편하게 객관식, 주관식 퀴즈를 생성합니다.
