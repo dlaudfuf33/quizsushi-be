@@ -18,7 +18,7 @@ public class OllamaAiService {
     private final AiModelRouter aiModelRouter;
 
     public List<GenerateQuizResponse> generateQuizByAI(GenerateQuizRequest request) {
-        AiModelAdapter adapter = aiModelRouter.getAdapter("llama3:8b");
+        AiModelAdapter adapter = aiModelRouter.getAdapter("llama3Adapter");
         return adapter.generateQuiz(request);
     }
 }
