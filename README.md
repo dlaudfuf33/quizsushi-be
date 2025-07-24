@@ -1,14 +1,13 @@
 
 # 🍣 QuizSushi - Backend
-<p align="center">
+<p >
   <img width="800" height="500" alt="QuizSushi 메인 화면" src="https://github.com/user-attachments/assets/336586b3-5ab2-41c4-b246-87ff26d2adda" />
 </p>   
-자격증 공부를 하며 기출문제를 반복해서 풀면 충분하다 생각했습니다.  
+자격증 공부를 하며 기출문제를 반복해서 풀고다 반복 횟수가 늘어날수록 지루하게 느껴졌고     
 
-하지만 시간이 지날수록 지루하게 느껴졌고 기출문제를 찾고 정리하는 데 오히려 시간을 허비하고 있다는 생각이 들었습니다.
+기출문제를 찾고 정리하는 데 오히려 시간이 낭비되고 있다는 생각이 들었습니다.
 
-어느 순간부터는  
-**단순히 문제를 푸는 것보다, 직접 만들어보는 과정이 훨씬 더 깊은 이해로 이어진다는 걸** 체감하게 되었습니다.  
+**단순히 문제를 푸는 것보다, 직접 만들어보는 과정이 훨씬 더 깊은 이해가 될 수 있다는** 생각을하게 되었습니다.  
 **더 다양한 문제를 접하고, 능동적으로 학습할 수 있는 방법이 필요하다고** 느낀 것이 QuizSushi의 시작이었습니다.
 
 하지만 기존 퀴즈 플랫폼들은 다음과 같은 한계가 있었습니다.  
@@ -25,10 +24,16 @@
 **AI 기반 문제 생성**, **실시간 서바이벌 퀴즈 챌린지를** 통해  
 **혼자만이 아닌, 함께 학습하는 경험을** 제공합니다.
 
+
+<br>   
+
+
 ### 📂 관련 링크
 
 - 🔗 **Frontend Repository**: [quizsushi-fe (Next.js)](https://github.com/dlaudfuf33/quizsushi-fe)
 - 🚀 **배포 주소**: [https://quizsushi.cmdlee.com](https://quizsushi.cmdlee.com)
+
+
 ---
 
 ## 🛠️ 사용 기술
@@ -145,7 +150,8 @@ public void createQuiz(CreateQuizRequest request, Long memberId) {
 ```
 </details>
 
-<img width="800" height="600" alt="Mermaid Chart - Create complex, visual diagrams with text  A smarter way of creating diagrams -2025-07-23-173518" src="https://github.com/user-attachments/assets/eb854945-a7a0-4e89-8d74-594d3110ebbc" />
+<img width="800" height="600"  alt="createQuiz" src="https://github.com/user-attachments/assets/6caabc91-bea7-4c26-a4b0-e364511bfac2" />
+
 
 
 --- 
@@ -220,8 +226,11 @@ public void createQuiz(CreateQuizRequest request, Long memberId) {
         }
     }
   ```
-> 10명의 사용자가 동시에 채팅을 전송했을 때 모든 메시지가 누락 없이 로그에 저장되는지를 검증했습니다.
-> 이 테스트를 통해 동시 접근 상황에서도 Collections.synchronizedList 구조가 안정적으로 동작한다는 것을 확인했습니다.
+  > 10명의 사용자가 동시에 채팅을 전송했을 때 모든 메시지가 누락 없이 로그에 저장되는지를 검증했습니다.
+  > 이 테스트를 통해 동시 접근 상황에서도 Collections.synchronizedList 구조가 안정적으로 동작한다는 것을 확인했습니다.
+
+  <img width="800" height="600" alt="chat" src="https://github.com/user-attachments/assets/f2ce420b-ca1b-4e37-b193-d4814a9afe95" />
+
 
 ---
 
@@ -306,45 +315,81 @@ Redis ZSet에 memberId를 key로, 현재 시간을 score로 저장합니다.
   > ZRANGE로 score 기준으로 정렬된 전체 대기열을 가져오고 ZREM으로 매칭된 유저를 제거합니다.   
   > 리스트 기반이라면 조건에 맞는 유저 필터링에 O(n) Redis ZSet은 삽입, 정렬, 삭제 모두 O(log n)
 
+  <img width="800" height="600" alt="match" src="https://github.com/user-attachments/assets/ad87b185-71af-48c1-878a-b93586d84f21" />
+
 
   
 
-### 🤖 AI 연동 설계: 목적에 따른 이중 전략 (Dual-Strategy)
+### AI 연동 구조 개선
 
-QuizSushi는 AI 모델을 사용하는 목적에 따라 두 가지 다른 아키텍처를 적용하여 유연성과 효율성을 모두 확보했습니다.
+AI 모델을 활용해 퀴즈를 생성하는 기능을 제공하고 있으며 서비스 환경과 비용 문제를 고려하여 구조를 점진적으로 개선해왔습니다.   
+일반 퀴즈 생성과 실시간 챌린지 문제 생성은 요구 조건이 다르다는 점을 인지하고, 각각에 최선의 전략을 선택하게 되었습니다.   
 
-**1. Ollama 연동 (어댑터 패턴 적용)**
-자체 호스팅되거나 교체 가능한 로컬 AI 모델(Llama3, Mistral 등)을 위해 **어댑터(Adapter) 패턴**을 적용했습니다.
-
--   **유연한 모델 교체**: `AiModelAdapter` 인터페이스를 통해 모든 모델을 동일한 방식으로 호출합니다. `CodeLlama` 등 새로운 모델을 추가하고 싶을 때, 기존 코드를 수정하지 않고 새로운 어댑터만 구현하여 `AiModelRouter`에 등록하면 됩니다.
--   **인프라 추상화**: `AiInstanceRouter`가 여러 AI 서버 인스턴스의 주소를 관리하며 라운드-로빈 방식으로 요청을 분산합니다. 이를 통해 AI 추론 서버의 부하를 분산하고 수평적으로 확장할 수 있습니다.
--   **사용처**: 일반 사용자의 AI 퀴즈 생성 기능에 사용됩니다.
-
-**2. Gemini 연동 (Spring AI 직접 통합)**
-클라우드 기반의 관리형 서비스인 Google Vertex AI Gemini 연동에는 **Spring AI 프레임워크를 직접 활용**합니다.
-
--   **라이브러리 활용 극대화**: Spring AI의 `VertexAiGeminiChatModel` 자체가 이미 강력한 추상화(어댑터)를 제공하므로, 이를 다시 감싸지 않고 직접 사용하여 코드 중복을 피하고 프레임워크의 모든 기능을 활용합니다.
--   **최적화된 통합**: 인증, API 호출, 재시도 로직 등 플랫폼에 특화된 기능들을 Spring AI에 위임하여 안정적이고 간결한 코드를 유지합니다.
--   **사용처**: 고품질의 문제가 요구되는 실시간 **퀴즈 챌린지**의 문제를 생성하는 데 특화되어 사용됩니다.
-
-이처럼 QuizSushi는 연동 대상의 특성(자체 호스팅 vs 클라우드 서비스)과 사용 목적에 맞춰 가장 효율적인 아키텍처를 각각 선택하여 적용한 실용적인 설계를 갖추고 있습니다.
-
-
-### ⚠️ 예외 처리
-
--   `ErrorCode` Enum 클래스를 통해 애플리케이션에서 발생할 수 있는 모든 예외 상황(코드, 메시지, HTTP 상태)을 중앙에서 체계적으로 관리합니다.
--   `@RestControllerAdvice`를 사용한 `GlobalExceptionHandler`가 모든 예외를 처리하여 일관된 JSON 형식의 에러 응답을 반환합니다.
-
-<br>
+1. 병목 문제 발생
+QuizSushi의 배포 환경은 외장 GPU가 없는 저전력 미니 PC로 구성되어 있으며, 로컬 모델 구동시 CPU 기반 연산으로만 실행됩니다.
+요청이 몰리면 지연이 심각해 10분 이상 걸리는 현상이 발생했습니다.
+  <img width="800" height="600" alt="Mermaid Chart - Create complex, visual diagrams with text  A smarter way of creating diagrams -2025-07-24-045206" src="https://github.com/user-attachments/assets/5adc0c2a-1aac-4e0f-a29c-6e9662545d4a" />
 
 
 
-<br>
+2. 수평 확장 시도
+이 문제를 해결하기 위해 구조 개선을 고민했습니다:
+- Ollama가 요청을 한 번에 하나씩만 처리한다면 여러 인스턴스를 두고 요청을 나누면 병목을 줄일 수 있지 않을까? 라는 생각을 했습니다.
+  - 병목 문제를 해소하기 위해, Raspberry Pi에 분산 배포하는 방안을 실험해보았으나 초경량 모델만 구동이 가능했고
+  - 다음으로 Docker 기반으로 동일 머신 내에서 여러 Ollama 컨테이너를 띄우고 라운드로빈을 모방한 방식을 사용했습니다.
+    ```java
+      @Component
+      @RequiredArgsConstructor
+      public class AiInstanceRouter {
 
-## 📜 API 명세 (Swagger 기반)
+        private final AiProperties aiProperties;
+        private final AtomicInteger index = new AtomicInteger(0);
+    
+        public String nextUrl() {
+            List<String> urls = aiProperties.getUrls();
+            int i = index.getAndUpdate(n -> (n + 1) % urls.size());
+            return urls.get(i);
+        }
+      }
+    ```
+    > 등록된 Ollama 인스턴스의 주소목록을 순서대로 순회하며 요청을 나눕니다.
+    <img width="800" height="600" alt="Mermaid Chart - Create complex, visual diagrams with text  A smarter way of creating diagrams -2025-07-24-061839" src="https://github.com/user-attachments/assets/b3cfc9a0-58e1-4051-a485-fa1798889dfc" />
 
--   **Swagger UI (로컬 테스트)**: [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
--   SpringDoc(OpenAPI 3.0)을 활용하여 REST API 명세를 자동화하였으며, 위 주소에서 API 문서를 확인하고 직접 테스트해볼 수 있습니다.
+  - 구조적으로 분산은 가능했지만, CPU 자원을 공유하는 한계로 인해 컨테이너 수를 늘려도 성능이 비례하지 않고 오히려 역효과가 발생했습니다.
+
+  
+3. Gemini를 병행 도입 (GeminiAiService)
+실시간 퀴즈 챌린지 기능은 빠른 응답성과 고품질 생성이 필수였습니다.
+CPU 기반 구조로는 이를 만족하기 어려웠고, 수평 확장도 한계에 도달했기 때문에 Google Vertex AI Gemini를 병행 도입하였습니다.
+- Gemini는 Google의 멀티모달 LLM으로, Vertex AI 플랫폼을 통해 API 형태로 연동할 수 있습니다.   
+- 퀴즈 챌린지의 다음 문제 생성 시, Gemini에게 프롬프트를 전달해 실시간으로 퀴즈를 생성합니다.
+  ```java
+    public ChallengeQuiz generateChallengeQuizWithGemini(int level) {
+          String basePrompt = dbPromptTemplateProvider.getTemplate("quizChallenge_generation_gemini");
+          String randomType = QUESTION_TYPES.get(ThreadLocalRandom.current().nextInt(QUESTION_TYPES.size()));
+          String finalPrompt = basePrompt.replace("{{randomType}}", randomType)
+                  .replace("{{level}}", String.valueOf(level));
+  
+          for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+              try {
+                  return callAndParse(finalPrompt);
+              } catch (GlobalException e) {
+                  log.warn("[GeminiAiService] Attempt {} failed: {}", attempt, e.getMessage());
+                  if (attempt == MAX_RETRIES) throw e;
+              } catch (Exception e) {
+                  log.error("[GeminiAiService] Unexpected error on attempt {}", attempt, e);
+                  if (attempt == MAX_RETRIES) throw new GlobalException(ErrorCode.AI_RESPONSE_PARSE_FAILED, e);
+              }
+          }
+  
+          throw new GlobalException(ErrorCode.AI_EMPTY_RESPONSE);
+      }
+  ```
+<img width="800" height="600" alt="Mermaid Chart - Create complex, visual diagrams with text  A smarter way of creating diagrams -2025-07-24-062447" src="https://github.com/user-attachments/assets/347c6cf3-212d-4e17-bf11-9cbee16bf22f" />
+<img width="800" height="600" alt="Mermaid Chart - Create complex, visual diagrams with text  A smarter way of creating diagrams -2025-07-24-062517" src="https://github.com/user-attachments/assets/60c1237f-cac4-474f-bf4e-98659e4ce321" />
+
+
+
 
 <br>
 
