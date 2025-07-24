@@ -82,7 +82,7 @@
 
 
 
-## 주요 사항
+## 📝주요 사항
 
 ### 팩토리 패턴 도입 ([QuizFactory](https://github.com/dlaudfuf33/quizsushi-be/blob/main/src/main/java/com/cmdlee/quizsushi/quiz/domain/factory/DefaultQuizFactory.java): / [QuestionFactory](https://github.com/dlaudfuf33/quizsushi-be/blob/main/src/main/java/com/cmdlee/quizsushi/quiz/domain/factory/QuizQuestionFactory.java))
 - 퀴즈 생성 시 클라이언트로부터 전달받은 데이터가 복잡한 구조(퀴즈 본문, 다수의 문제, 각 문제의 선택지 및 정답)로 이루어져 있었고, 이를 엔티티로 매핑하는 과정에서 서비스 계층의 책임이 지나치게 비대해졌습니다.
