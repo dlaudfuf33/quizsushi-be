@@ -24,11 +24,13 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import java.lang.reflect.Field;
 import java.time.Instant;
 import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.Map;
+import java.util.concurrent.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.*;
@@ -347,4 +349,56 @@ class ChallengeGameServiceTest {
         verify(challengeSessionRedisService, atLeast(1)).deleteSession(testSession.getSessionId());
         verify(messagingTemplate, atLeast(1)).convertAndSend(any(String.class), any(Object.class));
     }
+
+    @DisplayName("동시 채팅 시에도 모든 메시지가 정확히 기록된다")
+    @Test
+    void receiveChat_concurrentAccess_shouldHandleWithoutErrors() throws InterruptedException {
+        // given
+        int threadCount = 10;
+        ExecutorService executor = Executors.newFixedThreadPool(10);
+        CountDownLatch latch = new CountDownLatch(threadCount);
+        String sessionId = "sessionId2025";
+
+        when(challengeSessionRedisService.getSession(sessionId)).thenReturn(testSession);
+        for (int i = 0; i < threadCount; i++) {
+            QuizsushiMember member = QuizsushiMember.builder()
+                    .id((long) i)
+                    .nickname("user-" + i)
+                    .profileImage("avatar.png")
+                    .build();
+            PlayerStatus status = new PlayerStatus(member, 100);
+            testSession.getPlayers().put(String.valueOf(i), status);
+        }
+
+        // when
+        for (int i = 0; i < threadCount; i++) {
+            final int userNum = i;
+            executor.submit(() -> {
+                try {
+                    ChatMessageRequest message = new ChatMessageRequest();
+                    message.setSessionId(sessionId);
+                    message.setSenderId(String.valueOf(userNum));
+                    message.setNickname("user-" + userNum);
+                    message.setContent("화이팅해요 " + userNum);
+                    challengeGameService.receiveChat(message);
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        latch.await();
+        executor.shutdown();
+
+        // then
+        List<ChatMessageRequest> logs = testSession.getChatLog();
+        assertEquals(threadCount, logs.size(), "모든 메시지가 누락 없이 기록되어야 함");
+
+        for (int i = 0; i < threadCount; i++) {
+            String expected = "화이팅해요 " + i;
+            boolean exists = logs.stream().anyMatch(msg -> msg.getContent().equals(expected));
+            assertTrue(exists, "메시지 누락 여부 확인: " + expected);
+        }
+    }
+
 }

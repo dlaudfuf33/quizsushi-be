@@ -1,0 +1,96 @@
+
+#################################################################
+# 프로젝트: QuizSushi (AI 기반 실시간 퀴즈 챌린지 플랫폼)
+#################################################################
+
+### 1. 프로젝트 소개 및 개발 동기
+
+"가장 좋은 학습법은 직접 가르쳐보는 것이다." 라는 말처럼, 저는 지식을 수동적으로 소비하는 것보다 능동적으로 재구성하고 문제를 만들어보는 과정에서 더 깊은 학습이 일어난다고 믿습니다.
+
+이 프로젝트는 개인적인 경험에서 시작되었습니다. 처음에는 자격증 기출문제를 풀며 공부했지만, 정해진 문제만 반복하는 것에 한계를 느꼈습니다. "더 다양한 문제를 접하고 싶다", "직접 문제를 만들어보면 더 재미있지 않을까?" 하는 생각이 들었고, 직접 문제를 만들고 풀어보는 과정이 학습에 훨씬 더 효과적임을 깨달았습니다.
+
+그리고 이 경험을 저 혼자만 하는 것이 아니라, 다른 사람들과 함께 공유할 수 있다면 훨씬 더 풍성하고 즐거운 학습 경험이 될 것이라는 확신이 들었습니다.
+
+QuizSushi는 바로 이 생각에서 탄생했습니다. 단순한 문제풀이 앱을 넘어, 누구나 자신만의 지식으로 퀴즈를 만들고, 공유하며, 서로의 경험을 통해 함께 성장하는 커뮤니티 기반의 퀴즈 플랫폼을 지향합니다. 자격증처럼 정형화된 지식뿐만 아니라, 내가 흥미 있는 어떤 주제라도 퀴즈가 될 수 있습니다.
+
+이 프로젝트를 통해 기술적으로는 AI를 활용해 콘텐츠 제작의 장벽을 낮추고, 실시간 기술로 함께 배우는 즐거움을 극대화하며, 궁극적으로는 '학습'이 '놀이'가 되는 즐거운 경험을 만들고 싶었습니다.
+
+---
+
+### 2. 해결한 문제와 기술적 선택 (Technical Deep Dive)
+
+이 프로젝트는 실제 서비스 환경에서 마주할 수 있는 기술적 문제들을 정의하고, 이를 아키텍처 설계를 통해 해결하는 것에 중점을 두었습니다.
+
+#### 가. 문제 상황 1: 실시간 퀴즈 대결 중 발생하는 동시성 및 상태 불일치
+
+-   **문제 정의**:
+    1.  **상태 불일치**: 서버가 여러 대로 확장될 경우, 각 서버가 게임 상태를 개별적으로 메모리에 저장하면 사용자마다 다른 게임 화면을 보게 되는 문제가 발생합니다.
+    2.  **경쟁 상태 (Race Condition)**: 제한 시간이 끝나기 직전에 모든 플레이어가 답을 제출하면, '타임아웃에 의한 자동 채점'과 '모든 플레이어 제출에 의한 즉시 채점' 로직이 동시에 실행되어 채점이 중복 처리될 수 있습니다.
+
+-   **기술적 해결 방안 및 근거**:
+    1.  **중앙 집중식 상태 관리 (Redis)**: 게임 세션의 모든 상태(`ChallengeSession` 객체)를 각 서버의 메모리가 아닌 **Redis에 중앙 저장**하도록 설계했습니다. 모든 서버는 상태를 변경하기 전에 반드시 Redis에서 최신 상태를 읽어오고, 로직 처리 후 다시 Redis에 쓰는 **'Read-Modify-Write' 패턴**을 따릅니다. 이를 통해 Redis를 **'단일 진실의 원천(Single Source of Truth)'**으로 삼아, 분산 환경에서도 모든 사용자가 동일한 상태를 보장받도록 문제를 해결했습니다.
+
+    2.  **상태 기반의 동시성 제어**: Lock을 사용하는 대신, 비동기 작업(타임아웃 채점)이 실행되는 시점에 **Redis에서 현재 게임의 상태(`phase`)를 다시 확인**하도록 구현했습니다.
+        -   **근거 코드 (`ChallengeGameService` 내 예약된 태스크)**:
+            ```java
+            ChallengeSession latest = challengeSessionRedisService.getSession(sessionId);
+            if (latest != null && latest.getPhase() == ChallengePhaseType.PLAYING) {
+                // 만약 모든 유저가 답을 제출하여 상태가 이미 'GRADING'으로 바뀌었다면,
+                // 이 조건이 false가 되어 타임아웃에 의한 중복 채점이 실행되지 않음.
+                checkAndGradingAnswers(session);
+            }
+            ```
+        -   이 설계는 불필요한 Lock 없이도 경쟁 상태를 원천적으로 방지하는 효율적인 방법입니다.
+
+#### 나. 문제 상황 2: 특정 AI 모델에 대한 높은 종속성 및 낮은 확장성
+
+-   **문제 정의**: 초기에는 Llama3 모델만 사용했지만, 향후 더 성능 좋은 GPT-4나 Claude 모델로 교체하거나 여러 모델을 동시에 사용하고 싶을 때, 서비스 코드 전체를 수정해야 하는 경직된 구조를 피해야 했습니다.
+
+-   **기술적 해결 방안 및 근거**:
+    *   **전략(Strategy) 및 어댑터(Adapter) 디자인 패턴 적용**: AI 모델과의 통신 로직을 추상화한 `AiModelAdapter` 인터페이스를 만들고, 각 모델(`Llama3Adapter`, `GeminiAdapter` 등)에 대한 구체적인 구현체를 작성했습니다. `AiModelRouter`는 요청에 따라 적절한 어댑터를 동적으로 선택하여 작업을 위임합니다.
+        -   **근거 코드 (`OllamaAiService`)**:
+            ```java
+            public List<GenerateQuizResponse> generateQuizByAI(GenerateQuizRequest request) {
+                // "llama3"라는 문자열만으로 적절한 구현체를 동적으로 찾아옴.
+                // if(model.equals("llama3")) ... 와 같은 분기문이 없음.
+                AiModelAdapter adapter = aiModelRouter.getAdapter("llama3");
+                return adapter.generateQuiz(request);
+            }
+            ```
+        -   이 설계 덕분에 새로운 AI 모델을 추가할 때, **기존 코드를 전혀 수정하지 않고 새로운 어댑터 클래스 하나만 추가**하면 되므로 **개방-폐쇄 원칙(OCP)**을 준수하는 유연하고 확장 가능한 구조를 완성했습니다.
+
+#### 다. 문제 상황 3: 분산 시스템 환경에서의 데이터 정합성 문제
+
+-   **문제 정의**: 사용자가 미디어 파일이 포함된 퀴즈를 생성할 때, 데이터베이스(PostgreSQL)에 퀴즈 정보는 성공적으로 저장되었지만, 파일 스토리지(Minio)로의 파일 이동이 네트워크 오류 등으로 실패하면, DB에는 존재하지만 실제 파일은 없는 '깨진 데이터'가 생성됩니다.
+
+-   **기술적 해결 방안 및 근거**:
+    *   **트랜잭션 동기화 콜백 활용**: 파일 이동 로직을 즉시 실행하지 않고, Spring의 **`TransactionSynchronizationManager`**를 사용하여 **데이터베이스 트랜잭션이 성공적으로 커밋(`afterCommit`)된 이후에 실행될 콜백으로 등록**했습니다.
+        -   **근거 코드 (`MinioService`)**:
+            ```java
+            private void registerMoveAfterCommit(String tmpObjectKey, String destObjectKey) {
+                // 현재 DB 트랜잭션이 활성화 상태일 때만 동기화 콜백을 등록함.
+                if (TransactionSynchronizationManager.isSynchronizationActive()) {
+                    TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                        @Override
+                        public void afterCommit() {
+                            // 이 코드는 DB 트랜잭션이 성공적으로 커밋된 후에만 실행됨.
+                            // ... 실제 파일 이동 로직 ...
+                        }
+                    });
+                }
+            }
+            ```
+        -   이로써 DB 저장이 실패하면 파일 이동은 아예 시도조차 되지 않으며, 여러 시스템에 걸친 작업의 **원자성(Atomicity)**을 확보하고 데이터 정합성을 해결했습니다.
+
+---
+
+### 3. 기술 스택 (Tech Stack)
+
+-   **Backend**: `Java 17`, `Spring Boot 3.x`, `Spring Security`, `Spring Data JPA`, `Spring WebSocket`
+-   **Database & In-Memory**: `PostgreSQL`, `Redis`, `Hibernate`
+-   **Authentication**: `JWT (JSON Web Token)`, `OAuth 2.0` (Google, Kakao)
+-   **External Services**:
+    -   **AI**: `Ollama (Llama3)`, `Google Vertex AI (Gemini)`
+    -   **File Storage**: `Minio` (S3 Compatible)
+-   **Build & Deployment**: `Gradle`, `Docker`, `GitHub Actions` (CI/CD)
+-   **Key Libraries**: `WebClient`, `QueryDSL`, `JJwt`, `Minio SDK`
