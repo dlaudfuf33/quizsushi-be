@@ -84,7 +84,7 @@
 
 ## 주요 사항
 
-### 팩토리 패턴 도입 이유 (QuizFactory / QuestionFactory)
+### 팩토리 패턴 도입 ([QuizFactory](https://github.com/dlaudfuf33/quizsushi-be/blob/main/src/main/java/com/cmdlee/quizsushi/quiz/domain/factory/DefaultQuizFactory.java): / [QuestionFactory](https://github.com/dlaudfuf33/quizsushi-be/blob/main/src/main/java/com/cmdlee/quizsushi/quiz/domain/factory/QuizQuestionFactory.java))
 - 퀴즈 생성 시 클라이언트로부터 전달받은 데이터가 복잡한 구조(퀴즈 본문, 다수의 문제, 각 문제의 선택지 및 정답)로 이루어져 있었고, 이를 엔티티로 매핑하는 과정에서 서비스 계층의 책임이 지나치게 비대해졌습니다.
 - 객체 생성 책임을 명확히 분리하고, 문제 번호 중복과 같은 도메인 규칙을 외부에 노출하지 않기 위해 팩토리 패턴을 도입하였습니다. QuizFactory / QuestionFactory를 통해 생성 과정을 캡슐화하고, 서비스는 전처리된 데이터를 전달만 하도록 구조를 수정했습니다.
 - 이렇게 함으로써 생성 로직이 각 객체 내부에 응집되었고, 테스트 가능한 단위로 분리되었으며, 전체 서비스 코드의 가독성과 유지보수성이 크게 향상되었습니다.
@@ -157,7 +157,7 @@ public void createQuiz(CreateQuizRequest request, Long memberId) {
 --- 
 
 
-###  실시간 퀴즈 세션 상태 저장 구조 (ChallengeSession)
+###  실시간 퀴즈 세션 상태 저장 구조 ([ChallengeSession](https://github.com/dlaudfuf33/quizsushi-be/blob/main/src/main/java/com/cmdlee/quizsushi/quiz/challenge/model/ChallengeSession.java))
 실시간 퀴즈 챌린지 기능에 문제 출제, 유저 응답, 채팅, 점수 등 게임 진행 중 발생하는 다양한 상태들을 관리할 수 있는 구조가 필요했습니다.   
 이 상태들은 실시간으로 변화하고 여러 유저가 동시에 접근하므로, 단순 컬렉션 기반으로는 안정성을 확보하기 어렵다 생각이 들었습니다.   
 
@@ -235,7 +235,7 @@ public void createQuiz(CreateQuizRequest request, Long memberId) {
 ---
 
 
-###  자동 매칭 구조 (MatchingQueueService)
+###  자동 매칭 구조 ([MatchingQueueService](https://github.com/dlaudfuf33/quizsushi-be/blob/main/src/main/java/com/cmdlee/quizsushi/quiz/challenge/service/MatchingQueueService.java))
 실시간 퀴즈 챌린지 기능에서, 유저가 참여를 요청하면 이를 일정 기준에 따라 자동으로 매칭시켜주는 로직이 필요했습니다.
 - 여러 사용자가 매칭을 요청할 경우 누가 먼저 들어왔는지 파악하고 공정한 순서대로 매칭시켜야 했습니다.
 - 최소 2명 이상이 모였을 때 또는 30초 이상 대기한 경우 와 같이 유연한 조건을 설정해 매칭을 시작할 수 있어야 했습니다.
@@ -328,7 +328,7 @@ AI 모델을 활용해 퀴즈를 생성하는 기능을 제공하고 있으며 �
 1. 병목 문제 발생
 QuizSushi의 배포 환경은 외장 GPU가 없는 저전력 미니 PC로 구성되어 있으며, 로컬 모델 구동시 CPU 기반 연산으로만 실행됩니다.
 요청이 몰리면 지연이 심각해 10분 이상 걸리는 현상이 발생했습니다.
-  <img width="800" height="600" alt="Mermaid Chart - Create complex, visual diagrams with text  A smarter way of creating diagrams -2025-07-24-045206" src="https://github.com/user-attachments/assets/5adc0c2a-1aac-4e0f-a29c-6e9662545d4a" />
+    <img width="800" height="600" alt="Mermaid Chart - Create complex, visual diagrams with text  A smarter way of creating diagrams -2025-07-24-045206" src="https://github.com/user-attachments/assets/5adc0c2a-1aac-4e0f-a29c-6e9662545d4a" />
 
 
 
@@ -358,7 +358,7 @@ QuizSushi의 배포 환경은 외장 GPU가 없는 저전력 미니 PC로 구성
   - 구조적으로 분산은 가능했지만, CPU 자원을 공유하는 한계로 인해 컨테이너 수를 늘려도 성능이 비례하지 않고 오히려 역효과가 발생했습니다.
 
   
-3. Gemini를 병행 도입 (GeminiAiService)
+3. Gemini를 병행 도입 ([GeminiAiService](https://github.com/dlaudfuf33/quizsushi-be/blob/main/src/main/java/com/cmdlee/quizsushi/ai/service/GeminiAiService.java))
 실시간 퀴즈 챌린지 기능은 빠른 응답성과 고품질 생성이 필수였습니다.
 CPU 기반 구조로는 이를 만족하기 어려웠고, 수평 확장도 한계에 도달했기 때문에 Google Vertex AI Gemini를 병행 도입하였습니다.
 - Gemini는 Google의 멀티모달 LLM으로, Vertex AI 플랫폼을 통해 API 형태로 연동할 수 있습니다.   
@@ -385,8 +385,7 @@ CPU 기반 구조로는 이를 만족하기 어려웠고, 수평 확장도 한�
           throw new GlobalException(ErrorCode.AI_EMPTY_RESPONSE);
       }
   ```
-<img width="800" height="600" alt="Mermaid Chart - Create complex, visual diagrams with text  A smarter way of creating diagrams -2025-07-24-062447" src="https://github.com/user-attachments/assets/347c6cf3-212d-4e17-bf11-9cbee16bf22f" />
-<img width="800" height="600" alt="Mermaid Chart - Create complex, visual diagrams with text  A smarter way of creating diagrams -2025-07-24-062517" src="https://github.com/user-attachments/assets/60c1237f-cac4-474f-bf4e-98659e4ce321" />
+  <img width="800" height="600" alt="Mermaid Chart - Create complex, visual diagrams with text  A smarter way of creating diagrams -2025-07-24-062517" src="https://github.com/user-attachments/assets/60c1237f-cac4-474f-bf4e-98659e4ce321" />
 
 
 
