@@ -85,7 +85,7 @@
 ## 📝 주요 사항
 
 ### 팩토리 패턴 도입 ([QuizFactory](https://github.com/dlaudfuf33/quizsushi-be/blob/main/src/main/java/com/cmdlee/quizsushi/quiz/domain/factory/DefaultQuizFactory.java): / [QuestionFactory](https://github.com/dlaudfuf33/quizsushi-be/blob/main/src/main/java/com/cmdlee/quizsushi/quiz/domain/factory/QuizQuestionFactory.java))
-퀴즈 생성 시 클라이언트로부터 전달받은 데이터가 복잡한 구조(퀴즈 본문, 다수의 문제, 각 문제의 선택지 및 정답)로 이루어져 있었고, 이를 엔티티로 매핑하는 과정에서 서비스 계층의 책임이 지나치게 비대해졌습니다.
+퀴즈 생성 시 클라이언트로부터 전달받은 데이터가 복잡한 구조(퀴즈 본문, 다수의 문제, 각 문제의 선택지 및 정답)로 이루어져 있었고, 이를 엔티티로 매핑하는 과정에서 서비스 계층의 책임이 컸습니다.
 - 객체 생성 책임을 명확히 분리하고, 문제 번호 중복과 같은 도메인 규칙을 외부에 노출하지 않기 위해 팩토리 패턴을 도입하였습니다. QuizFactory / QuestionFactory를 통해 생성 과정을 캡슐화하고, 서비스는 전처리된 데이터를 전달만 하도록 구조를 수정했습니다.
 - 이렇게 함으로써 생성 로직이 각 객체 내부에 응집되었고, 테스트 가능한 단위로 분리되었으며, 전체 서비스 코드의 가독성과 유지보수성이 크게 향상되었습니다.
 
