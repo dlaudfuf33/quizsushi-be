@@ -18,11 +18,14 @@ public class CreatedQuizResponse {
     private String createdAt;
 
     public static CreatedQuizResponse from(Quiz quiz) {
+        int questionSize = quiz.getMultipleQuestions().size() + quiz.getShortsQuestions().size() +
+                quiz.getOrderingQuestions().size() + quiz.getMatchingQuestions().size();
+
         return CreatedQuizResponse.builder()
                 .id(quiz.getId())
                 .title(quiz.getTitle())
                 .category(quiz.getCategory().getTitle())
-                .questions(quiz.getQuestions().size())
+                .questions(questionSize)
                 .solvedCount(quiz.getSolveCount())
                 .rating(quiz.getRating())
                 .ratingCount(quiz.getRatingCount())

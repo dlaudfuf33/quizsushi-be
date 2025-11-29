@@ -6,10 +6,9 @@ import com.cmdlee.quizsushi.global.exception.GlobalException;
 import com.cmdlee.quizsushi.member.domain.model.QuizsushiMember;
 import com.cmdlee.quizsushi.member.repository.MemberRepository;
 import com.cmdlee.quizsushi.minio.service.MinioService;
-import com.cmdlee.quizsushi.quiz.domain.factory.QuestionFactory;
 import com.cmdlee.quizsushi.quiz.domain.factory.QuizFactory;
 import com.cmdlee.quizsushi.quiz.domain.model.*;
-import com.cmdlee.quizsushi.quiz.dto.QuestionCreationData;
+import com.cmdlee.quizsushi.quiz.domain.model.question.BaseQuestion;
 import com.cmdlee.quizsushi.quiz.dto.QuizCreationData;
 import com.cmdlee.quizsushi.quiz.dto.request.CreateQuizRequest;
 import com.cmdlee.quizsushi.quiz.dto.request.QuizRatingRequest;
@@ -25,6 +24,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,17 +35,15 @@ public class QuizService {
     private final QuizRepository quizRepository;
     private final CategoryRepository categoryRepository;
     private final QuizRatingRepository quizRatingRepository;
-    private final QuestionRepository questionRepository;
     private final MemberRepository memberRepository;
     private final MemberQuizSolveLogRepository memberQuizSolveLogRepository;
     private final GuestQuizSolveLogRepository guestQuizSolveLogRepository;
 
     private final QuizPreprocessingService quizPreprocessingService;
-    private final QuestionPreprocessingService questionPreprocessingService;
     private final MinioService minioService;
 
     private final QuizFactory quizFactory;
-    private final QuestionFactory questionFactory;
+    private final QuestionService questionService;
 
 
     public QuizPageResponse getQuizPage(int page, int size, String sortKey, String searchType, String query, Long categoryId) {
@@ -65,16 +63,17 @@ public class QuizService {
     public CreatedQuizResponse createQuiz(CreateQuizRequest request, Long memberId) {
         QuizsushiMember member = memberRepository.findById(memberId).orElseThrow(() -> new GlobalException(ErrorCode.ENTITY_NOT_FOUND));
 
-        Category category = categoryRepository.findById(request.getCategoryId()).orElseThrow(() -> new GlobalException(ErrorCode.ENTITY_NOT_FOUND));
+        Category category = categoryRepository.findById(request.getCategoryId()).orElseThrow(
+                () -> new GlobalException(ErrorCode.ENTITY_NOT_FOUND));
         String mediaKey = NanoIdUtils.randomNanoId();
 
         QuizCreationData data = quizPreprocessingService.process(request, member, category, mediaKey);
         Quiz quiz = quizFactory.create(data);
         quizRepository.save(quiz);
 
-        List<QuestionCreationData> questionDataList = questionPreprocessingService.processForCreate(request.getQuestions(), quiz.isUseSubject(), mediaKey);
-        List<Question> questions = questionDataList.stream().map(qData -> questionFactory.create(qData, quiz)).toList();
-        questionRepository.saveAll(questions);
+        List<BaseQuestion> questions = questionService.createQuestions(request.getQuestions(), quiz);
+        quiz.addQuestions(questions);
+
         return new CreatedQuizResponse(quiz.getId());
     }
 
@@ -82,31 +81,32 @@ public class QuizService {
     @Transactional
     public QuizDetailResponse getQuizById(Long id) {
         Quiz quiz = quizRepository.findQuizDetailById(id).orElseThrow(() -> new GlobalException(ErrorCode.ENTITY_NOT_FOUND));
+        List<BaseQuestion> questions = questionService.findAllQuestionsByQuizId(id).stream()
+                .sorted(Comparator.comparingInt(BaseQuestion::getNo))
+                .toList();
         quiz.increaseViewCount();
-        return QuizDetailResponse.from(quiz);
+        return QuizDetailResponse.of(quiz,questions);
     }
 
     @Transactional
     public UpdatedQuizResponse updateQuiz(UpdateQuizRequest request, long memberId) {
-        Quiz quiz = quizRepository.findById(request.getId()).orElseThrow(() -> new GlobalException(ErrorCode.ENTITY_NOT_FOUND));
+        Quiz quiz = quizRepository.findById(request.getId())
+                .orElseThrow(() -> new GlobalException(ErrorCode.ENTITY_NOT_FOUND));
 
-        if (quiz.getAuthor().getId() != memberId) {
+        if (!quiz.getAuthor().getId().equals(memberId)) {
             throw new GlobalException(ErrorCode.MEMBER_MISMATCH);
         }
 
+        // 퀴즈 메타데이터 업데이트
         quiz.updateMetadata(request.getDescription(), request.isUseSubject(), request.getQuestions().size());
 
-        questionRepository.deleteByQuizId(quiz.getId());
+        List<BaseQuestion> updatedQuestions = questionService.updateQuestions(request.getQuestions(), quiz);
         quiz.clearQuestions();
-        minioService.deleteAllWithPrefix(quiz.getMediaKey());
+        quiz.addQuestions(updatedQuestions);
 
-        List<QuestionCreationData> questionDataList = questionPreprocessingService.processForUpdate(request.getQuestions(), quiz.isUseSubject(), quiz.getMediaKey());
-
-        List<Question> questions = questionDataList.stream().map(qData -> questionFactory.create(qData, quiz)).toList();
-        quiz.addQuestions(questions);
-        questionRepository.saveAll(questions);
         return new UpdatedQuizResponse(quiz.getId());
     }
+
 
     @Transactional
     public void deleteQuiz(Long quizId, long memberId) {

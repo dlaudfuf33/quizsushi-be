@@ -15,11 +15,14 @@ public enum ErrorCode {
     BAD_SORT_KEY("V005", "잘못된 정렬 기준입니다.", HttpStatus.BAD_REQUEST),
     INVALID_SEARCHTYPE("V006", "검색 타입은 title 또는 author만 가능합니다.", HttpStatus.BAD_REQUEST),
     BOT_ACCESS_BLOCKED("V007", "자동화 접근이 차단되었습니다.", HttpStatus.FORBIDDEN),
-    DUPLICATE_RATING("V008", "이미 평가를 제출했습니다.", HttpStatus.BAD_REQUEST), // 메시지 변경
+    DUPLICATE_RATING("V008", "이미 평가를 제출했습니다.", HttpStatus.BAD_REQUEST),
     UNSUPPORTED_REPORT_TARGET("V009", "지원하지 않는 신고 유형입니다.", HttpStatus.BAD_REQUEST),
     UNSUPPORTED_REPORT_STATUS("V010", "지원하지 않는 신고 상태입니다.", HttpStatus.BAD_REQUEST),
     WRONG_DATE_RANGE("V0011", "종료일이 시작일보다 빠를 수 없습니다.", HttpStatus.BAD_REQUEST),
     INVALID_REQUEST("V012", "잘못된 요청입니다.", HttpStatus.BAD_REQUEST),
+    INVALID_QUESTION_TYPE("V013", "유효하지 않은 문제 유형입니다.", HttpStatus.BAD_REQUEST),
+
+
 
     // === [A] Auth Errors (401/403) ===
     USER_ID_REQUIRED("A001", "userId 정보가 필요합니다.", HttpStatus.BAD_REQUEST),

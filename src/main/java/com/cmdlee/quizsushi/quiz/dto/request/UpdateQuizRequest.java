@@ -1,5 +1,6 @@
 package com.cmdlee.quizsushi.quiz.dto.request;
 
+import com.cmdlee.quizsushi.quiz.dto.request.question.update.UpdateQuestionRequest;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
