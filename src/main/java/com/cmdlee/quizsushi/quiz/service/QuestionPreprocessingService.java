@@ -1,9 +1,11 @@
 package com.cmdlee.quizsushi.quiz.service;
 
+import com.cmdlee.quizsushi.global.exception.ErrorCode;
+import com.cmdlee.quizsushi.global.exception.GlobalException;
 import com.cmdlee.quizsushi.minio.service.MinioService;
-import com.cmdlee.quizsushi.quiz.dto.QuestionCreationData;
-import com.cmdlee.quizsushi.quiz.dto.request.CreateQuestionRequest;
-import com.cmdlee.quizsushi.quiz.dto.request.UpdateQuestionRequest;
+import com.cmdlee.quizsushi.quiz.dto.creation.*;
+import com.cmdlee.quizsushi.quiz.dto.request.question.create.*;
+import com.cmdlee.quizsushi.quiz.dto.request.question.update.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -14,46 +16,121 @@ import java.util.List;
 public class QuestionPreprocessingService {
     private final MinioService minioService;
 
-    public QuestionCreationData process(CreateQuestionRequest request, boolean useSubject, String mediaKey) {
-        return new QuestionCreationData(
-                request.getNo(),
-                request.getType(),
-                useSubject ? request.getSubject() : "",
-                minioService.rewriteTempMediaLinks(request.getQuestion(), mediaKey),
-                request.getOptions().stream()
-                        .map(opt -> minioService.rewriteTempMediaLinks(opt, mediaKey))
-                        .toList(),
-                request.getCorrectAnswer(),
-                minioService.rewriteTempMediaLinks(request.getCorrectAnswerText(), mediaKey),
-                minioService.rewriteTempMediaLinks(request.getExplanation(), mediaKey)
-        );
+    public QuestionCreationData processing(CreateQuestionRequest request, boolean useSubject, String mediaKey) {
+        if (request instanceof CreateMultipleQuestionRequest multiple) {
+            return MultipleCreationData.of(
+                    multiple.getNo(),
+                    useSubject ? multiple.getSubject() : "",
+                    minioService.rewriteTempMediaLinks(multiple.getQuestionText(), mediaKey),
+                    multiple.getOptionDataList().stream()
+                            .map(opt -> new MultipleOptionData(
+                                    minioService.rewriteTempMediaLinks(opt.getText(), mediaKey),
+                                    opt.isCorrect()
+                            ))
+                            .toList(),
+                    minioService.rewriteTempMediaLinks(multiple.getExplanation(), mediaKey)
+            );
+        } else if (request instanceof CreateShortsQuestionRequest shorts) {
+            return ShortsCreationData.of(
+                    shorts.getNo(),
+                    useSubject ? shorts.getSubject() : "",
+                    minioService.rewriteTempMediaLinks(shorts.getQuestionText(), mediaKey),
+                    shorts.getShortsAnswerList().stream().toList(),
+                    minioService.rewriteTempMediaLinks(shorts.getExplanation(), mediaKey)
+            );
+        } else if (request instanceof CreateOrderingQuestionRequest ordering) {
+            return OrderingCreationData.of(
+                    ordering.getNo(),
+                    useSubject ? ordering.getSubject() : "",
+                    minioService.rewriteTempMediaLinks(ordering.getQuestionText(), mediaKey),
+                    ordering.getOrderingOptionDataList().stream()
+                            .map(opt -> new OrderingOptionData(
+                                    minioService.rewriteTempMediaLinks(opt.getText(), mediaKey),
+                                    opt.getOrdering()
+                            ))
+                            .toList(),
+                    minioService.rewriteTempMediaLinks(ordering.getExplanation(), mediaKey)
+            );
+        } else if (request instanceof CreateMatchingQuestionRequest matching) {
+            return MatchingCreationData.of(
+                    matching.getNo(),
+                    useSubject ? matching.getSubject() : "",
+                    minioService.rewriteTempMediaLinks(matching.getQuestionText(), mediaKey),
+                    matching.getMatchingPairDataList().stream()
+                            .map(pair -> new MatchingPairData(
+                                    minioService.rewriteTempMediaLinks(pair.getLeftText(), mediaKey),
+                                    minioService.rewriteTempMediaLinks(pair.getRightText() , mediaKey)
+                            ))
+                            .toList(),
+                    minioService.rewriteTempMediaLinks(matching.getExplanation(), mediaKey)
+            );
+        } else {
+            throw new GlobalException(ErrorCode.INVALID_QUESTION_TYPE);
+        }
     }
 
+    public QuestionCreationData processing(UpdateQuestionRequest request, boolean useSubject, String mediaKey) {
+        if (request instanceof UpdateMultipleQuestionRequest multiple) {
+            return MultipleCreationData.of(
+                    multiple.getNo(),
+                    useSubject ? multiple.getSubject() : "",
+                    minioService.rewriteTempMediaLinks(multiple.getQuestionText(), mediaKey),
+                    multiple.getOptionDataList().stream()
+                            .map(opt -> new MultipleOptionData(
+                                    minioService.rewriteTempMediaLinks(opt.getText(), mediaKey),
+                                    opt.isCorrect()
+                            ))
+                            .toList(),
+                    minioService.rewriteTempMediaLinks(multiple.getExplanation(), mediaKey)
+            );
+        } else if (request instanceof UpdateShortsQuestionRequest shorts) {
+            return ShortsCreationData.of(
+                    shorts.getNo(),
+                    useSubject ? shorts.getSubject() : "",
+                    minioService.rewriteTempMediaLinks(shorts.getQuestionText(), mediaKey),
+                    shorts.getCorrectAnswerList().stream().toList(),
+                    minioService.rewriteTempMediaLinks(shorts.getExplanation(), mediaKey)
+            );
+        } else if (request instanceof UpdateOrderingQuestionRequest ordering) {
+            return OrderingCreationData.of(
+                    ordering.getNo(),
+                    useSubject ? ordering.getSubject() : "",
+                    minioService.rewriteTempMediaLinks(ordering.getQuestionText(), mediaKey),
+                    ordering.getOrderingOptionDataList().stream()
+                            .map(opt -> new OrderingOptionData(
+                                    minioService.rewriteTempMediaLinks(opt.getText(), mediaKey),
+                                    opt.getOrdering()
+                            ))
+                            .toList(),
+                    minioService.rewriteTempMediaLinks(ordering.getExplanation(), mediaKey)
+            );
+        } else if (request instanceof UpdateMatchingQuestionRequest matching) {
+            return MatchingCreationData.of(
+                    matching.getNo(),
+                    useSubject ? matching.getSubject() : "",
+                    minioService.rewriteTempMediaLinks(matching.getQuestionText(), mediaKey),
+                    matching.getMatchingPairDataList().stream()
+                            .map(pair -> new MatchingPairData(
+                                    minioService.rewriteTempMediaLinks(pair.getLeftText(), mediaKey),
+                                    minioService.rewriteTempMediaLinks(pair.getRightText(), mediaKey)
+                            ))
+                            .toList(),
+                    minioService.rewriteTempMediaLinks(matching.getExplanation(), mediaKey)
+            );
+        } else {
+            throw new GlobalException(ErrorCode.INVALID_QUESTION_TYPE);
+        }
+    }
 
     public List<QuestionCreationData> processForCreate(List<CreateQuestionRequest> requests, boolean useSubject, String mediaKey) {
         return requests.stream()
-                .map(q -> process(q, useSubject, mediaKey))
+                .map(q -> processing(q, useSubject, mediaKey))
                 .toList();
-    }
-
-    public QuestionCreationData process(UpdateQuestionRequest request, boolean useSubject, String mediaKey) {
-        return new QuestionCreationData(
-                request.getNo(),
-                request.getType(),
-                useSubject ? request.getSubject() : "",
-                minioService.rewriteTempMediaLinks(request.getQuestion(), mediaKey),
-                request.getOptions().stream()
-                        .map(opt -> minioService.rewriteTempMediaLinks(opt, mediaKey))
-                        .toList(),
-                request.getCorrectAnswer(),
-                minioService.rewriteTempMediaLinks(request.getCorrectAnswerText(), mediaKey),
-                minioService.rewriteTempMediaLinks(request.getExplanation(), mediaKey)
-        );
     }
 
     public List<QuestionCreationData> processForUpdate(List<UpdateQuestionRequest> requests, boolean useSubject, String mediaKey) {
         return requests.stream()
-                .map(q -> process(q, useSubject, mediaKey))
+                .map(q -> processing(q, useSubject, mediaKey))
                 .toList();
     }
 }

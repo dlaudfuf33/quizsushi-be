@@ -1,6 +1,8 @@
 package com.cmdlee.quizsushi.quiz.dto.response;
 
 import com.cmdlee.quizsushi.quiz.domain.model.Quiz;
+import com.cmdlee.quizsushi.quiz.domain.model.question.BaseQuestion;
+import com.cmdlee.quizsushi.quiz.dto.response.question.QuestionResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,16 +25,17 @@ public class QuizDetailResponse {
     private long ratingCount;
     private List<QuestionResponse> questions;
 
-    public static QuizDetailResponse from(Quiz quiz) {
+    public static QuizDetailResponse of(Quiz quiz, List<BaseQuestion> questionList) {
         Author author = Author.builder()
                 .id(quiz.getAuthor().getId().toString())
                 .nickName(quiz.getAuthor().getNickname())
                 .avatar(quiz.getAuthor().getProfileImage())
                 .build();
 
-        List<QuestionResponse> questions = quiz.getQuestions().stream()
-                .map(QuestionResponse::from)
+        List<QuestionResponse> questions = questionList.stream()
+                .map(BaseQuestion::toResponse)
                 .toList();
+
         CategoryResponse categoryResponse = CategoryResponse.builder()
                 .id(quiz.getCategory().getId())
                 .title(quiz.getCategory().getTitle())

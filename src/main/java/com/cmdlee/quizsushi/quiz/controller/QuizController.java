@@ -67,7 +67,7 @@ public class QuizController {
     }
 
 
-    @RejectBot
+//    @RejectBot
     @GetMapping("/{id}")
     public ResponseEntity<CommonApiResponse<QuizDetailResponse>> getQuizById(
             @PathVariable Long id) {

@@ -57,9 +57,7 @@ public interface QuizRepository extends JpaRepository<Quiz, Long> {
     @Query("""
                 SELECT q FROM Quiz q
                 JOIN FETCH q.category
-                LEFT JOIN FETCH q.questions qu
                 WHERE q.id = :id
-                ORDER BY qu.no ASC
             """)
     Optional<Quiz> findQuizDetailById(@Param("id") Long id);
 
@@ -84,7 +82,6 @@ public interface QuizRepository extends JpaRepository<Quiz, Long> {
     List<StatRawProjection> findCreatedStats(@Param("type") String type,
                                              @Param("start") LocalDateTime start,
                                              @Param("end") LocalDateTime end
-//            ,@Param("limit") int limit
             );
 
     List<Quiz> findByAuthor(QuizsushiMember member);

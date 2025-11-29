@@ -77,6 +77,93 @@ CREATE TABLE question
     updated_at          TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 객관식 문제 테이블
+CREATE TABLE question_multiple
+(
+    id            BIGINT PRIMARY KEY DEFAULT nextval('question_seq'), -- 문제 ID
+    quiz_id       BIGINT      NOT NULL REFERENCES quiz (id),          -- 소속 퀴즈 ID
+    question_text TEXT        NOT NULL,                               -- 문제 본문
+    explanation   TEXT,                                               -- 해설
+    question_no   INTEGER     NOT NULL,                               -- 퀴즈 내 번호
+    question_type VARCHAR(50) NOT NULL,                               -- 문제 유형
+    subject       VARCHAR(255)                                        -- 과목/주제
+);
+
+-- 객관식 보기 옵션 테이블
+CREATE SEQUENCE IF NOT EXISTS multiple_option_seq START 1 INCREMENT 50;
+CREATE TABLE multiple_option
+(
+    id          BIGINT PRIMARY KEY DEFAULT nextval('multiple_option_seq'),                 -- 문제 ID
+    question_id BIGINT       NOT NULL REFERENCES question_multiple (id) ON DELETE CASCADE, -- 문제 ID
+    text        VARCHAR(255) NOT NULL,                                                     -- 보기 내용
+    is_correct  BOOLEAN      NOT NULL                                                      -- 정답 여부
+);
+
+-- 단답형 문제 테이블
+CREATE TABLE question_shorts
+(
+    id            BIGINT PRIMARY KEY DEFAULT nextval('question_seq'), -- 문제 ID
+    quiz_id       BIGINT      NOT NULL REFERENCES quiz (id),          -- 소속 퀴즈 ID
+    question_text TEXT        NOT NULL,                               -- 문제 본문
+    explanation   TEXT,                                               -- 해설
+    question_no   INTEGER     NOT NULL,                               -- 퀴즈 내 번호
+    question_type VARCHAR(50) NOT NULL,                               -- 문제 유형
+    subject       VARCHAR(255)                                        -- 과목/주제
+);
+
+-- 단답형 정답 문자열 테이블
+CREATE TABLE shorts_answer
+(
+    question_id BIGINT       NOT NULL REFERENCES question_shorts (id) ON DELETE CASCADE, -- 문제 ID
+    answer      VARCHAR(255) NOT NULL,                                                   -- 정답 문자열
+    PRIMARY KEY (question_id, answer)
+);
+
+-- 순서 맞추기 문제 테이블
+CREATE TABLE question_ordering
+(
+    id            BIGINT PRIMARY KEY DEFAULT nextval('question_seq'), -- 문제 ID
+    quiz_id       BIGINT      NOT NULL REFERENCES quiz (id),          -- 소속 퀴즈 ID
+    question_text TEXT        NOT NULL,                               -- 문제 본문
+    explanation   TEXT,                                               -- 해설
+    question_no   INTEGER     NOT NULL,                               -- 퀴즈 내 번호
+    question_type VARCHAR(50) NOT NULL,                               -- 문제 유형
+    subject       VARCHAR(255)                                        -- 과목/주제
+);
+
+-- 순서 보기 옵션 테이블
+CREATE SEQUENCE IF NOT EXISTS ordering_option_seq START 1 INCREMENT 50;
+CREATE TABLE ordering_option
+(
+    id          BIGINT PRIMARY KEY DEFAULT nextval('ordering_option_seq'),                 -- 문제 ID
+    question_id BIGINT       NOT NULL REFERENCES question_ordering (id) ON DELETE CASCADE, -- 문제 ID
+    text        VARCHAR(255) NOT NULL,                                                     -- 보기 내용
+    ordering    INTEGER      NOT NULL                                                      -- 정답 순서
+);
+
+-- 매칭 문제 테이블
+CREATE TABLE question_matching
+(
+    id            BIGINT PRIMARY KEY DEFAULT nextval('question_seq'), -- 문제 ID
+    quiz_id       BIGINT      NOT NULL REFERENCES quiz (id),          -- 소속 퀴즈 ID
+    question_text TEXT        NOT NULL,                               -- 문제 본문
+    explanation   TEXT,                                               -- 해설
+    question_no   INTEGER     NOT NULL,                               -- 퀴즈 내 번호
+    question_type VARCHAR(50) NOT NULL,                               -- 문제 유형
+    subject       VARCHAR(255)                                        -- 과목/주제
+);
+
+-- 매칭 쌍 테이블
+CREATE SEQUENCE IF NOT EXISTS matching_pair_seq START 1 INCREMENT 50;
+CREATE TABLE matching_pair
+(
+    id          BIGINT PRIMARY KEY DEFAULT nextval('matching_pair_seq'),                   -- 문제 ID
+    question_id BIGINT       NOT NULL REFERENCES question_matching (id) ON DELETE CASCADE, -- 문제 ID
+    left_text   VARCHAR(255) NOT NULL,                                                     -- 왼쪽 항목
+    right_text  VARCHAR(255) NOT NULL                                                      -- 오른쪽 항목
+);
+
+
 --  사용자 평점 테이블
 CREATE SEQUENCE IF NOT EXISTS quiz_rating_seq START 1 INCREMENT 1;
 CREATE TABLE quiz_rating
